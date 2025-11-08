@@ -4,6 +4,7 @@
     "target": "esnext",
     "module": "esnext",
     "moduleDetection": "force",
+    "moduleResolution": "node",
     "allowJs": true,
 
     // Bundler mode

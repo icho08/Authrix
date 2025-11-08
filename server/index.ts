@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";  
 import dotenv from "dotenv"; 
 import bodyParser from "body-parser";
-
+import { logger } from "./config/logger";
+import admin from "./routes/admin/app"
 const app = express();
 dotenv.config(); 
 
@@ -11,13 +12,14 @@ origin: process.env.NODE_ENV == "development" ? "*" : String(process.env.CLIENT_
 credentials: true , 
 methods : ["GET" , "POST" , "PUT" , "PATCH" , "DELETE"]  , 
 }));
+
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: true})); 
 
 app.get("/health" , (req , res)=> { 
     res.status(200).json({status: "ok"}); 
 }); 
-
+app.use('/api/admin/', admin); 
 app.listen(3000 , ()=>{ 
-    console.log("Server is running at http://localhost:3000"); 
+    logger.info("Server is running at http://localhost:3000"); 
 })
