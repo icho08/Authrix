@@ -3,7 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv"; 
 import bodyParser from "body-parser";
 import { logger } from "./config/logger";
-import admin from "./routes/admin/app"
+import admin from "./routes/admin/app";
+import auth from "./routes/auth/user";
 const app = express();
 dotenv.config(); 
 
@@ -20,6 +21,7 @@ app.get("/health" , (req , res)=> {
     res.status(200).json({status: "ok"}); 
 }); 
 app.use('/api/admin/', admin); 
+app.use('/api/auth/', auth); 
 app.listen(3000 , ()=>{ 
     logger.info("Server is running at http://localhost:3000"); 
 })

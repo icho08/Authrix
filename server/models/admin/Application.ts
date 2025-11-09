@@ -7,7 +7,7 @@ export const createApplication = async (name: string) => {
     if (!name) {
       return { error: "name is required" };
     }
-    const apiKey = `ak_${nanoid()}}`;
+    const apiKey = `ak_${nanoid()}`;
     const secretKey = crypto.randomBytes(48).toString("base64");
     const app = await prisma.application.create({
       data: { name, apiKey, secretKey },

@@ -15,6 +15,7 @@ model Application {
   apiKey    String   @unique
   secretKey String
   users     User[]
+  requireEmailVerification Boolean  @default(false) 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
