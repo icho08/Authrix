@@ -25,12 +25,28 @@ model User {
   email                String
   password             String
   isVerified           Boolean     @default(false)
-  refreshToken         String?
-  refreshTokenExpiry   DateTime?
   applicationId        String
   application          Application @relation(fields: [applicationId], references: [id])
+  sessions             Session[]
   createdAt            DateTime    @default(now())
   updatedAt            DateTime    @updatedAt
 
   @@unique([email, applicationId])
+}
+
+model Session {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String    @unique
+  deviceName   String?
+  browser      String?
+  os           String?
+  deviceType   String?
+  location     String?
+  ipAddress    String?
+  isActive     Boolean   @default(true)
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime  @default(now())
 }

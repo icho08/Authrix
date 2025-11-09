@@ -19,6 +19,6 @@ export const verifyApiKey = async (req: Request, res: Response, next: NextFuncti
     return res.status(401).json({ error: "Invalid API key" });
   }
   
-  req.app = app;
+  (req as any).application = app;
   next();
 };

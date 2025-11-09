@@ -8,6 +8,8 @@ import auth from "./routes/auth/user";
 const app = express();
 dotenv.config(); 
 
+app.set('trust proxy', true);
+
 app.use(cors({
 origin: process.env.NODE_ENV == "development" ? "*" : String(process.env.CLIENT_URL),
 credentials: true , 

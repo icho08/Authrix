@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import prisma from '../config/prisma';
 import { getAppById } from './AppUtils';
+import { parseDeviceInfo } from './deviceInfo';
 
 interface JWTPayload {
   userId: string;
@@ -20,15 +21,26 @@ export const signAccessToken = async (payload: JWTPayload): Promise<string> => {
   return jwt.sign(payload, app.secretKey, { expiresIn: '15m' });
 };
 
-export const signRefreshToken = async (userId: string, applicationId: string): Promise<string> => {
+export const signRefreshToken = async (userId: string, applicationId: string, userAgent?: string, ipAddress?: string): Promise<string> => {
   const refreshToken = crypto.randomBytes(64).toString('hex');
-  const expiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   
-  await prisma.user.update({
-    where: { id: userId },
-    data: { 
+  let deviceInfo = null;
+  if (userAgent && ipAddress) {
+    deviceInfo = parseDeviceInfo(userAgent, ipAddress);
+  }
+  
+  await prisma.session.create({
+    data: {
+      userId,
       refreshToken,
-      refreshTokenExpiry: expiry
+      deviceName: deviceInfo?.deviceName,
+      browser: deviceInfo?.browser,
+      os: deviceInfo?.os,
+      deviceType: deviceInfo?.deviceType,
+      location: deviceInfo?.location,
+      ipAddress: deviceInfo?.ipAddress,
+      expiresAt
     }
   });
   
@@ -51,37 +63,61 @@ export const verifyAccessToken = async (token: string, applicationId: string): P
 
 export const verifyRefreshToken = async (refreshToken: string, applicationId: string): Promise<JWTPayload | null> => {
   try {
-    const user = await prisma.user.findFirst({
+    const session = await prisma.session.findFirst({
       where: {
         refreshToken,
-        applicationId,
-        refreshTokenExpiry: {
-          gt: new Date()  
+        isActive: true,
+        expiresAt: {
+          gt: new Date()
+        },
+        user: {
+          applicationId
         }
+      },
+      include: {
+        user: true
       }
     });
     
-    if (!user) {
+    if (!session) {
       return null;
     }
+
+    await prisma.session.update({
+      where: { id: session.id },
+      data: { lastUsedAt: new Date() }
+    });
     
     return {
-      userId: user.id,
-      email: user.email,
-      applicationId: user.applicationId,
-      isVerified: user.isVerified
+      userId: session.user.id,
+      email: session.user.email,
+      applicationId: session.user.applicationId,
+      isVerified: session.user.isVerified
     };
   } catch {
     return null;
   }
 };
 
-export const revokeRefreshToken = async (userId: string): Promise<void> => {
-  await prisma.user.update({
-    where: { id: userId },
+export const refreshTokenRotation = async (oldRefreshToken: string): Promise<string> => {
+  const newRefreshToken = crypto.randomBytes(64).toString('hex');
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  
+  await prisma.session.update({
+    where: { refreshToken: oldRefreshToken },
     data: { 
-      refreshToken: null,
-      refreshTokenExpiry: null
+      refreshToken: newRefreshToken,
+      expiresAt,
+      lastUsedAt: new Date()
     }
+  });
+  
+  return newRefreshToken;
+};
+
+export const revokeSession = async (refreshToken: string): Promise<void> => {
+  await prisma.session.update({
+    where: { refreshToken },
+    data: { isActive: false }
   });
 };
