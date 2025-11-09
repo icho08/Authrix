@@ -21,15 +21,16 @@ model Application {
 }
 
 model User {
-  id            Int         @id @default(autoincrement())
-  email         String
-  password      String
-  isVerified    Boolean     @default(false)
-  refreshToken  String?
-  applicationId String
-  application   Application @relation(fields: [applicationId], references: [id])
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id                   String      @id @default(cuid())
+  email                String
+  password             String
+  isVerified           Boolean     @default(false)
+  refreshToken         String?
+  refreshTokenExpiry   DateTime?
+  applicationId        String
+  application          Application @relation(fields: [applicationId], references: [id])
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
 
   @@unique([email, applicationId])
 }
