@@ -121,3 +121,20 @@ export const revokeSession = async (refreshToken: string): Promise<void> => {
     data: { isActive: false }
   });
 };
+
+export const revokeAllUserSessions = async (userId: string): Promise<void> => {
+  await prisma.session.updateMany({
+    where: { userId },
+    data: { isActive: false }
+  });
+};
+
+export const revokeOtherSessions = async (userId: string, currentRefreshToken: string): Promise<void> => {
+  await prisma.session.updateMany({
+    where: { 
+      userId,
+      refreshToken: { not: currentRefreshToken }
+    },
+    data: { isActive: false }
+  });
+};

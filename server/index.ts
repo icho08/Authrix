@@ -5,10 +5,19 @@ import bodyParser from "body-parser";
 import { logger } from "./config/logger";
 import admin from "./routes/admin/app";
 import auth from "./routes/auth/user";
+import { generalLimiter } from "./middleware/rateLimiter";
+import { errorHandler } from "./middleware/errorHandler";
+import { requestId } from "./middleware/requestId";
+
 const app = express();
 dotenv.config(); 
 
-app.set('trust proxy', true);
+app.set('trust proxy', false);
+
+
+// Ig adding request Id makes the request look cool : 
+app.use(requestId);
+app.use(generalLimiter);
 
 app.use(cors({
 origin: process.env.NODE_ENV == "development" ? "*" : String(process.env.CLIENT_URL),
@@ -24,6 +33,9 @@ app.get("/health" , (req , res)=> {
 }); 
 app.use('/api/admin/', admin); 
 app.use('/api/auth/', auth); 
+
+app.use(errorHandler);
+
 app.listen(3000 , ()=>{ 
     logger.info("Server is running at http://localhost:3000"); 
 })

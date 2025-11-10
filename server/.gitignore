@@ -10,6 +10,7 @@ dist
 coverage
 *.lcov
  bun.lock
+latest
 # logs
 logs
 _.log

@@ -1,9 +1,49 @@
-const timestamp = () => new Date().toISOString();
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
-export const logger = { 
-    info: (message: any) => console.log(`\x1b[36m[${timestamp()}] INFO:\x1b[0m`, message), 
-    error: (message: any) => console.error(`\x1b[31m[${timestamp()}] ERROR:\x1b[0m`, message), 
-    warn: (message: any) => console.warn(`\x1b[33m[${timestamp()}] WARN:\x1b[0m`, message), 
-    debug: (message: any) => console.log(`\x1b[35m[${timestamp()}] DEBUG:\x1b[0m`, message),
-    success: (message: any) => console.log(`\x1b[32m[${timestamp()}] SUCCESS:\x1b[0m`, message)
-}
+const logFormat = winston.format.combine(
+  winston.format.timestamp(),
+  winston.format.errors({ stack: true }),
+  winston.format.json()
+);
+
+const winstonLogger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: logFormat,
+  transports: [
+    // Console logging (development)
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      )
+    }),
+    
+    // File logging (production) - rotates daily
+    new DailyRotateFile({
+      filename: 'logs/app-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      maxSize: '20m',
+      maxFiles: '30d',
+      format: logFormat
+    }),
+    
+    // Error-only logs
+    new DailyRotateFile({
+      filename: 'logs/error-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      level: 'error',
+      maxSize: '20m', 
+      maxFiles: '30d',
+      format: logFormat
+    })
+  ]
+});
+
+export const logger = {
+  info: (message: any) => winstonLogger.info(message),
+  error: (message: any) => winstonLogger.error(message),
+  warn: (message: any) => winstonLogger.warn(message),
+  debug: (message: any) => winstonLogger.debug(message),
+  success: (message: any) => winstonLogger.info(message) 
+};

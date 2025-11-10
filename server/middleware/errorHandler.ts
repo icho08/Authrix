@@ -1,0 +1,62 @@
+import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../utils/errors';
+import { logger } from '../config/logger';
+
+export const errorHandler = (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const requestId = (req as any).requestId;
+
+  logger.error({
+    error: err.message,
+    stack: err.stack,
+    requestId,
+    method: req.method,
+    url: req.url,
+    body: req.body,
+    headers: req.headers
+  });
+
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      error: {
+        code: err.code,
+        message: err.message,
+        requestId
+      }
+    });
+  }
+
+  if (err.name === 'PrismaClientKnownRequestError') {
+    return res.status(400).json({
+      error: {
+        code: 'DATABASE_ERROR',
+        message: 'Database operation failed',
+        requestId
+      }
+    });
+  }
+
+  // Handle JWT errors
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      error: {
+        code: 'INVALID_TOKEN',
+        message: 'Invalid token provided',
+        requestId
+      }
+    });
+  }
+
+  // Default server error
+  res.status(500).json({
+    error: {
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Something went wrong',
+      requestId
+    }
+  });
+};
