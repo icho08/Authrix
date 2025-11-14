@@ -13,9 +13,10 @@
     "@types/cors": "^2.8.19",
     "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.5",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/geoip-lite": "^1.4.4",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/nanoid": "^3.0.0",
+    "@types/nodemailer": "^7.0.3",
     "@types/pg": "^8.15.6"
   },
   "peerDependencies": {
@@ -32,8 +33,10 @@
     "geoip-lite": "^1.4.10",
     "jsonwebtoken": "^9.0.2",
     "nanoid": "^5.1.6",
+    "nodemailer": "^7.0.10",
     "pg": "^8.16.3",
     "prisma": "^6.19.0",
+    "resend": "^6.4.2",
     "ua-parser-js": "^2.0.6",
     "winston": "^3.18.3",
     "winston-daily-rotate-file": "^5.0.0"

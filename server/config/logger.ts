@@ -7,19 +7,38 @@ const logFormat = winston.format.combine(
   winston.format.json()
 );
 
+const consoleFormat = winston.format.combine(
+  winston.format.timestamp(),
+  winston.format.errors({ stack: true }),
+  winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
+    let log = `${timestamp} [${level.toUpperCase()}]: `;
+    
+    if (typeof message === 'object') {
+      log += JSON.stringify(message, null, 2);
+    } else {
+      log += message;
+    }
+    
+    if (stack) {
+      log += `\n${stack}`;
+    }
+    
+    if (Object.keys(meta).length > 0) {
+      log += `\n${JSON.stringify(meta, null, 2)}`;
+    }
+    
+    return log;
+  })
+);
+
 const winstonLogger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: logFormat,
   transports: [
-    // Console logging (development)
     new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      )
+      format: consoleFormat
     }),
     
-    // File logging (production) - rotates daily
     new DailyRotateFile({
       filename: 'logs/app-%DATE%.log',
       datePattern: 'YYYY-MM-DD',
@@ -45,5 +64,5 @@ export const logger = {
   error: (message: any) => winstonLogger.error(message),
   warn: (message: any) => winstonLogger.warn(message),
   debug: (message: any) => winstonLogger.debug(message),
-  success: (message: any) => winstonLogger.info(message) 
+  success: (message: any) => winstonLogger.info(message) // Map success to info
 };
