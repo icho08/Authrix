@@ -3,8 +3,8 @@ import { verifyAccessToken } from '../utils/jwt';
 
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-  const applicationId = (req as any ).app?.id;
+  const token = authHeader && authHeader.split(' ')[1];
+  const applicationId = req.application?.id;
   
   if (!token) {
     return res.status(401).json({ error: "Access token required" });
@@ -20,6 +20,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     return res.status(401).json({ error: "Invalid or expired token" });
   }
   
-  (req as any).user = payload;
+  req.user = payload;
   next();
 };
+

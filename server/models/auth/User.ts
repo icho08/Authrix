@@ -184,3 +184,30 @@ export const loginUser = async (email: string, password: string, applicationId: 
     refreshToken: await signRefreshToken(user.id, user.applicationId, userAgent, ipAddress)
   };
 };
+export const resetUserPassword = async (token: string, newPassword: string, applicationId: string) => {
+  const user = await prisma.user.findFirst({
+    where: {
+      resetToken: token,
+      applicationId,
+      resetTokenExpiry: { gt: new Date() }
+    }
+  });
+  
+  if (!user) {
+    throw new ValidationError("Invalid or expired reset token");
+  }
+  
+  const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10;
+  const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      resetToken: null,
+      resetTokenExpiry: null
+    }
+  });
+  
+  return { message: "Password reset successfully" };
+};

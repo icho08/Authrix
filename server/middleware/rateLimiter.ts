@@ -30,3 +30,13 @@ export const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+export const createAppLimiter = rateLimit({ 
+  windowMs: 15 * 60 * 1000, 
+  max: 5, 
+  message: {
+    error: "Too many application creation attempts, please try again in 15 minutes"
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+})

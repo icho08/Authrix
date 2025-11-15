@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { createUser, loginUser } from '../../models/auth/User';
+import { createUser, loginUser, resetUserPassword } from '../../models/auth/User';
 import { verifyRefreshToken, signAccessToken, refreshTokenRotation, revokeSession, revokeAllUserSessions, revokeOtherSessions } from '../../utils/jwt';
 import { logger } from '../../config/logger';
 import { ValidationError } from '../../utils/errors';
@@ -200,6 +200,7 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+
 export const requestPasswordReset = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body;
@@ -215,7 +216,6 @@ export const requestPasswordReset = async (req: Request, res: Response, next: Ne
     });
     
     if (!user) {
-      // Don't reveal if user exists
       return res.status(200).json({ message: "If the email exists, a reset link has been sent" });
     }
     
@@ -227,7 +227,6 @@ export const requestPasswordReset = async (req: Request, res: Response, next: Ne
       data: { resetToken, resetTokenExpiry }
     });
     
-    // Send password reset email
     await SendPasswordResetEmail(
     {  to : email , 
       token : resetToken,
@@ -235,6 +234,22 @@ export const requestPasswordReset = async (req: Request, res: Response, next: Ne
     );
     
     res.status(200).json({ message: "If the email exists, a reset link has been sent" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token, newPassword } = req.body;
+    const applicationId = (req as any).application.id;
+    
+    if (!token || !newPassword) {
+      throw new ValidationError("Token and new password are required");
+    }
+    
+    const result = await resetUserPassword(token, newPassword, applicationId);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
