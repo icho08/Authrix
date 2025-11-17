@@ -3,10 +3,11 @@ import { createApp, updateAppSettings } from "../../controllers/admin/appControl
 import { verifyApiKey } from "../../middleware/apiAuth";
 import { createAppLimiter } from "../../middleware/rateLimiter";
 import { authenticateUser } from "../../middleware/jwtAuth";
+import { verify } from "jsonwebtoken";
 
 const router = express.Router(); 
 
 router.post("/apps", createAppLimiter, verifyApiKey, authenticateUser, createApp);
-router.post("/apps/update-settings",verifyApiKey, authenticateUser , updateAppSettings);
+router.post("/apps/update-settings",  verifyApiKey, authenticateUser,  updateAppSettings);
 
 export default router; 

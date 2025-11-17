@@ -56,10 +56,11 @@ export const updateApplicationSettings = async (
     const app = await prisma.application.findFirst({
       where: { id: appId,  userId : userId}
     });
-    
+logger.info(app);
     if (!app) {
       return { error: "App not found or unauthorized" };
     }
+
     
     const updatedApp = await prisma.application.update({
       where: { id: appId , userId : userId },
@@ -73,3 +74,30 @@ export const updateApplicationSettings = async (
     return { error: "Failed to update application" };
   }
 };
+
+export const deleteApp = async(appId : string , userId : string)=>{ 
+  try { 
+    const app = await prisma.application.findFirst({ 
+      where : { 
+        id : appId , 
+        userId : userId
+      }, 
+      select : { 
+        id : true
+
+      }
+    }); 
+    if(!app){ 
+      return {error : "App not found or unauthorized"} 
+    } 
+    const deletedApp = await prisma.application.delete({ 
+      where : { 
+        id : app.id 
+      } 
+    }); 
+    return deletedApp
+  }catch(err:any){ 
+    logger.error(err); 
+    return {error : "Failed to delete app"}
+  }
+}

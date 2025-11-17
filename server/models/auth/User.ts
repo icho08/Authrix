@@ -7,7 +7,7 @@ import 'dotenv/config';
 import { IsEmail } from "../../utils/Email";
 import { ConflictError , ValidationError } from "../../utils/errors";
 import crypto from "crypto"; 
-import { sendVerificationEmail, sendLoginAlert, WelcomeEmail, SendWelcomeEmail } from "../../utils/emailService";
+import { sendVerificationEmail, sendLoginAlert, SendWelcomeEmail } from "../../utils/emailService";
 export const createUser = async (email: string, password: string, applicationId: string, isVerified: boolean, userAgent?: string, ipAddress?: string) => {
   if (await doesUserExist(email, applicationId)) {
     throw new ConflictError("User already exists");

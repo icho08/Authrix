@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createApplication, updateApplicationSettings } from '../../models/admin/Application';
+import { createApplication, deleteApp, updateApplicationSettings } from '../../models/admin/Application';
 import { logger } from '../../config/logger';
 
 export const createApp = async (req: Request, res: Response) => {  
@@ -40,7 +40,7 @@ export const updateAppSettings = async(req : Request , res  : Response) => {
       requireEmailVerification 
     });
     
-    if (!result || result.error) {
+    if (!result || 'error' in result) {
       return res.status(400).json({ error: result.error || "something went wrong" });
     }
     
@@ -50,3 +50,22 @@ export const updateAppSettings = async(req : Request , res  : Response) => {
    return res.status(500).json({ error: "something went wrong while updating app" });
   }
 }
+export const DeleteApp = async (req : Request , res : Response) => { 
+  try { 
+    const {appId} = req.body;
+    const user = req.user; 
+    if(!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    if(!appId){ 
+      return res.status(400).json({ error: "appId is required" });
+    }
+    const result = await deleteApp( appId , user.userId);
+    
+    if (!result || 'error' in result) {
+      return res.status(400).json({ error: result.error || "something went wrong" });
+    }
+    res.status(200).json(result);
+  }catch(err  : any ){ 
+    logger.error(err);
+  }}
