@@ -84,18 +84,33 @@ export const deleteApp = async(appId : string , userId : string)=>{
       }, 
       select : { 
         id : true
-
       }
     }); 
     if(!app){ 
       return {error : "App not found or unauthorized"} 
     } 
-    const deletedApp = await prisma.application.delete({ 
+
+    await prisma.session.deleteMany({
+      where: {
+        user: {
+          applicationId: app.id
+        }
+      }
+    });
+
+    await prisma.user.deleteMany({
+      where: {
+        applicationId: app.id
+      }
+    });
+
+    await prisma.application.delete({ 
       where : { 
         id : app.id 
       } 
     }); 
-    return {message : "App deleted successfully"}
+    
+    return {message : "App and all associated data deleted successfully"}
   }catch(err:any){ 
     logger.error(err); 
     return {error : "Failed to delete app"}
