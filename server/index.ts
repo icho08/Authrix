@@ -20,7 +20,7 @@ app.use(requestId);
 app.use(generalLimiter);
 
 app.use(cors({
-origin: process.env.NODE_ENV == "development" ? "*" : String(process.env.CLIENT_URL),
+origin: "*" ,
 credentials: true , 
 methods : ["GET" , "POST" , "PUT" , "PATCH" , "DELETE"]  , 
 }));
