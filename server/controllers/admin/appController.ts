@@ -65,7 +65,7 @@ export const DeleteApp = async (req : Request , res : Response) => {
     if (!result || 'error' in result) {
       return res.status(400).json({ error: result.error || "something went wrong" });
     }
-    res.status(200).json(result);
+    res.status(200).json(result.message);
   }catch(err  : any ){ 
     logger.error(err);
   }}

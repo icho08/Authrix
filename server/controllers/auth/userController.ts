@@ -9,17 +9,17 @@ import { SendPasswordResetEmail } from '../../utils/emailService';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
     const applicationId = (req as any).application.id;
     const isVerified = !(req as any).application.requireEmailVerification;
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip;
     
-    if (!email || !password) {
-      throw new ValidationError("Email and password are required");
+    if (!email || !password || !username) {
+      throw new ValidationError("Email, password, and username are required");
     }
     
-    const result = await createUser(email, password, applicationId, isVerified, userAgent, ipAddress);
+    const result = await createUser(email, password, username, applicationId, isVerified, userAgent, ipAddress);
     res.status(201).json(result);
   } catch (error) {
     next(error);

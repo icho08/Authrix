@@ -8,7 +8,7 @@ import { IsEmail } from "../../utils/Email";
 import { ConflictError , ValidationError } from "../../utils/errors";
 import crypto from "crypto"; 
 import { sendVerificationEmail, sendLoginAlert, SendWelcomeEmail } from "../../utils/emailService";
-export const createUser = async (email: string, password: string, applicationId: string, isVerified: boolean, userAgent?: string, ipAddress?: string) => {
+export const createUser = async (email: string, password: string, username: string, applicationId: string, isVerified: boolean, userAgent?: string, ipAddress?: string) => {
   if (await doesUserExist(email, applicationId)) {
     throw new ConflictError("User already exists");
   }
@@ -31,6 +31,7 @@ export const createUser = async (email: string, password: string, applicationId:
   const user = await prisma.user.create({
     data: {
       email : email, 
+      username: username,
      password: hashedPassword,
      applicationId: applicationId , 
      isVerified : isVerified,

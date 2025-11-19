@@ -95,7 +95,7 @@ export const deleteApp = async(appId : string , userId : string)=>{
         id : app.id 
       } 
     }); 
-    return deletedApp
+    return {message : "App deleted successfully"}
   }catch(err:any){ 
     logger.error(err); 
     return {error : "Failed to delete app"}
