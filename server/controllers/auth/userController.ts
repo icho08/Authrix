@@ -4,6 +4,7 @@ import { verifyRefreshToken, signAccessToken, refreshTokenRotation, revokeSessio
 import { logger } from '../../config/logger';
 import { ValidationError } from '../../utils/errors';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import prisma from '../../config/prisma';
 import { SendPasswordResetEmail } from '../../utils/emailService';
 
@@ -74,10 +75,13 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
 
 export const getProfile = async (req: Request, res: Response) => {
   const user = (req as any).user;
-  
+  if (!user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
   res.status(200).json({
     id: user.userId,
     email: user.email,
+    username : user.username, 
     isVerified: user.isVerified,
     applicationId: user.applicationId
   });
@@ -113,12 +117,11 @@ export const logoutAll = async (req: Request, res: Response, next: NextFunction)
 
 export const logoutOthers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const refreshToken = req.headers.authorization?.replace('Bearer ', '') || 
-                        req.headers['x-refresh-token'] as string;
+    const refreshToken = req.headers['x-refresh-token'] as string;
     const user = (req as any).user;
     
     if (!refreshToken) {
-      throw new ValidationError("Refresh token required in Authorization header");
+      throw new ValidationError("Refresh token required in X-Refresh-Token header");
     }
     
     await revokeOtherSessions(user.userId, refreshToken);
@@ -164,25 +167,66 @@ export const getSessions = async (req: Request, res: Response, next: NextFunctio
 
 export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { token } = req.body;
-    const applicationId = (req as any).application.id;
+    const { token } = req.query;
     
-    if (!token) {
-      throw new ValidationError("Verification token is required");
+    if (!token || typeof token !== 'string') {
+      return res.status(400).send(`
+        <html><body>
+          <h2>Invalid verification link</h2>
+          <p>The verification link is invalid or missing.</p>
+        </body></html>
+      `);
     }
     
-    const user = await prisma.user.findFirst({
-      where: {
-        verificationToken: token,
-        applicationId,
-        verificationExpiry: {
-          gt: new Date()
-        }
+    const decoded = jwt.decode(token) as any;
+    
+    if (!decoded || decoded.type !== 'email_verification') {
+      return res.status(400).send(`
+        <html><body>
+          <h2>Invalid Token Type</h2>
+          <p>This token is not for email verification.</p>
+        </body></html>
+      `);
+    }
+    
+    const application = await prisma.application.findUnique({
+      where: { id: decoded.applicationId }
+    });
+    
+    if (!application) {
+      return res.status(400).send(`
+        <html><body>
+          <h2>Invalid Application</h2>
+          <p>The application associated with this token was not found.</p>
+        </body></html>
+      `);
+    }
+    
+    const verified = jwt.verify(token, application.secretKey) as any;
+    
+    const user = await prisma.user.findUnique({
+      where: { 
+        id: verified.userId,
+        applicationId: verified.applicationId
       }
     });
     
     if (!user) {
-      throw new ValidationError("Invalid or expired verification token");
+      return res.status(400).send(`
+        <html><body>
+          <h2>User Not Found</h2>
+          <p>The user associated with this token was not found.</p>
+        </body></html>
+      `);
+    }
+    
+    if (user.isVerified) {
+      return res.send(`
+        <html><body>
+          <h2>Already Verified</h2>
+          <p>Your email is already verified. You can log in.</p>
+        </body></html>
+      `);
     }
     
     await prisma.user.update({
@@ -194,9 +238,28 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
       }
     });
     
-    res.status(200).json({ message: "Email verified successfully" });
-  } catch (error) {
-    next(error);
+    res.send(`
+      <html><body>
+        <h2>Email Verified Successfully!</h2>
+        <p>Your account has been verified. You can now log in.</p>
+      </body></html>
+    `);
+  } catch (error : any) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(400).send(`
+        <html><body>
+          <h2>Invalid or Expired Token</h2>
+          <p>The verification link is invalid or has expired.</p>
+        </body></html>
+      `);
+    }
+    
+    res.status(500).send(`
+      <html><body>
+        <h2>Verification Error</h2>
+        <p>An error occurred during verification. Please try again.</p>
+      </body></html>
+    `);
   }
 };
 

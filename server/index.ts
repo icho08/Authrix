@@ -12,25 +12,24 @@ import { requestId } from "./middleware/requestId";
 const app = express();
 dotenv.config(); 
 
-app.set('trust proxy', false);
-
-
-// Ig adding request Id makes the request look cool : 
-app.use(requestId);
-app.use(generalLimiter);
+app.set('trust proxy', true);
 
 app.use(cors({
-origin: "*" ,
-credentials: true , 
-methods : ["GET" , "POST" , "PUT" , "PATCH" , "DELETE"]  , 
+  origin: ["http://localhost:5173", "http://localhost:3000"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-API-Key", "X-Requested-With", "X-Refresh-Token"]
 }));
 
+app.use(requestId);
+app.use(generalLimiter);
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: true})); 
 
 app.get("/health" , (req , res)=> { 
     res.status(200).json({status: "ok"}); 
 }); 
+
 app.use('/api/admin/', admin); 
 app.use('/api/auth/', auth); 
 

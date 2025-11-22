@@ -60,7 +60,8 @@ export const DeleteApp = async (req : Request , res : Response) => {
     if(!appId){ 
       return res.status(400).json({ error: "appId is required" });
     }
-    const result = await deleteApp( appId , user.userId);
+    const result = await deleteApp
+    ( appId , user.userId);
     
     if (!result || 'error' in result) {
       return res.status(400).json({ error: result.error || "something went wrong" });

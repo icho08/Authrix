@@ -12,7 +12,7 @@ router.post("/login", loginLimiter, verifyApiKey, login);
 router.post("/refresh", authLimiter, verifyApiKey, refreshToken);
 router.post("/logout", verifyApiKey, logout);
 router.post("/logout-all", verifyApiKey, authenticateUser, logoutAll);
-router.post("/logout-others", verifyApiKey, authenticateUser, logoutOthers);
+// router.post("/logout-r", verifyApiKey, authenticateUser, logoutOthers);
 router.post("/verify-email", verifyApiKey, verifyEmail);
 router.post("/request-password-reset", authLimiter, verifyApiKey, requestPasswordReset);
 router.post("/reset-password", authLimiter, verifyApiKey, resetPassword);

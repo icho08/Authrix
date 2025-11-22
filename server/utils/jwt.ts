@@ -55,7 +55,21 @@ export const verifyAccessToken = async (token: string, applicationId: string): P
       return null;
     }
     
-    return jwt.verify(token, app.secretKey) as JWTPayload;
+    const payload = jwt.verify(token, app.secretKey) as JWTPayload;
+    
+    const activeSession = await prisma.session.findFirst({
+      where: {
+        userId: payload.userId,
+        isActive: true,
+        expiresAt: { gt: new Date() }
+      }
+    });
+    
+    if (!activeSession) {
+      return null;
+    }
+    
+    return payload;
   } catch {
     return null;
   }
@@ -130,11 +144,11 @@ export const revokeAllUserSessions = async (userId: string): Promise<void> => {
 };
 
 export const revokeOtherSessions = async (userId: string, currentRefreshToken: string): Promise<void> => {
-  await prisma.session.updateMany({
+  // Delete other sessions entirely (this invalidates their refresh tokens)
+  await prisma.session.deleteMany({
     where: { 
       userId,
       refreshToken: { not: currentRefreshToken }
-    },
-    data: { isActive: false }
+    }
   });
 };

@@ -6,7 +6,7 @@ import { signAccessToken, signRefreshToken } from "../../utils/jwt";
 import 'dotenv/config'; 
 import { IsEmail } from "../../utils/Email";
 import { ConflictError , ValidationError } from "../../utils/errors";
-import crypto from "crypto"; 
+import jwt from "jsonwebtoken";
 import { sendVerificationEmail, sendLoginAlert, SendWelcomeEmail } from "../../utils/emailService";
 export const createUser = async (email: string, password: string, username: string, applicationId: string, isVerified: boolean, userAgent?: string, ipAddress?: string) => {
   if (await doesUserExist(email, applicationId)) {
@@ -20,14 +20,6 @@ export const createUser = async (email: string, password: string, username: stri
   const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10 ;
   const hashedPassword = await bcrypt.hash(password , SALT_ROUNDS);
 
-  let verificationToken = null;
-  let verificationExpiry = null;
-  
-  if (!isVerified) {
-    verificationToken = crypto.randomBytes(32).toString('hex');
-    verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-  }
-
   const user = await prisma.user.create({
     data: {
       email : email, 
@@ -35,10 +27,35 @@ export const createUser = async (email: string, password: string, username: stri
      password: hashedPassword,
      applicationId: applicationId , 
      isVerified : isVerified,
-     verificationToken,
-     verificationExpiry
+     verificationToken: null,
+     verificationExpiry: null
     }
   });
+
+  let verificationToken = null;
+  if (!isVerified) {
+    const application = await prisma.application.findUnique({
+      where: { id: applicationId }
+    });
+    
+    if (!application) {
+      throw new ValidationError("Invalid application");
+    }
+    
+    verificationToken = jwt.sign(
+      { userId: user.id, applicationId, type: 'email_verification' },
+      application.secretKey,
+      { expiresIn: '24h' }
+    );
+    
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        verificationToken,
+        verificationExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      }
+    });
+  }
   SendWelcomeEmail(email); 
   const application = await prisma.application.findUnique({
     where: { id: applicationId }
@@ -117,8 +134,20 @@ export const loginUser = async (email: string, password: string, applicationId: 
     
     if (needsNewToken) {
       // Generate new verification token
-      const verificationToken = crypto.randomBytes(32).toString('hex');
-      const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+      const application = await prisma.application.findUnique({
+        where: { id: user.applicationId }
+      });
+      
+      if (!application) {
+        throw new ValidationError("Invalid application");
+      }
+      
+      const verificationToken = jwt.sign(
+        { userId: user.id, applicationId: user.applicationId, type: 'email_verification' },
+        application.secretKey,
+        { expiresIn: '24h' }
+      );
+      const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); 
       
       await prisma.user.update({
         where: { id: user.id },
