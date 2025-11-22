@@ -1,4 +1,5 @@
 export { AuthClient } from './client/AuthClient';
+export { useAuth, AuthProvider } from './hooks';
 export type { 
   AuthConfig, 
   RegisterData, 

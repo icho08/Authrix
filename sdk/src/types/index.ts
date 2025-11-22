@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import type { AuthClient } from "../client/AuthClient";
 export interface AuthConfig {
   apiKey: string;
   baseUrl?: string;
@@ -45,4 +47,16 @@ export interface Session {
   lastUsedAt: string;
 }
 
+export interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (data: LoginData) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  isAuthenticated: boolean;
+}
 
+export interface AuthProviderProps {
+  children : ReactNode;
+  client: AuthClient;
+}

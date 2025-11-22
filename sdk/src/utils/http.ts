@@ -1,7 +1,11 @@
+import { createRateLimiter } from './rateLimiter';
+import { withRetry } from './retry';
+
 export class HttpClient {
   private baseUrl: string;
   private apiKey: string;
   private onTokenExpired?: () => Promise<string>;
+  private rateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60000 });
 
   constructor(baseUrl: string, apiKey: string) {
     this.baseUrl = baseUrl;
@@ -12,7 +16,7 @@ export class HttpClient {
     this.onTokenExpired = callback;
   }
 
-  private getHeaders(accessToken?: string) {
+  private getHeaders(accessToken?: string): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-API-Key': this.apiKey,
@@ -26,16 +30,21 @@ export class HttpClient {
   }
 
   async request<T = any>(endpoint: string, options: RequestInit = {}, accessToken?: string): Promise<T> {
-    let response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...options,
-      headers: {
-        ...this.getHeaders(accessToken),
-        ...options.headers,
-      },
-    });
+    if (!this.rateLimiter.canMakeRequest()) {
+      const retryAfter = this.rateLimiter.getRetryAfter();
+      throw new Error(`Rate limit exceeded. Retry after ${retryAfter}ms`);
+    }
+    return withRetry(async () => {
+      
+      let response = await fetch(`${this.baseUrl}${endpoint}`, {
+        ...options,
+        headers: {
+          ...this.getHeaders(accessToken),
+          ...options.headers,
+        },
+      });
 
-    if (response.status === 401 && this.onTokenExpired && accessToken) {
-      try {
+      if (response.status === 401 && this.onTokenExpired && accessToken) {
         const newToken = await this.onTokenExpired();
         
         response = await fetch(`${this.baseUrl}${endpoint}`, {
@@ -45,15 +54,14 @@ export class HttpClient {
             ...options.headers,
           },
         });
-      } catch {
       }
-    }
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Request failed' })) as { message?: string };
-      throw new Error(error.message || `HTTP ${response.status}`);
-    }
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Request failed' })) as { message?: string };
+        throw new Error(`HTTP ${response.status}: ${error.message || 'Request failed'}`);
+      }
 
-    return response.json() as Promise<T>;
+      return response.json() as Promise<T>;
+    }, { maxRetries: 3, baseDelay: 1000 });
   }
 }

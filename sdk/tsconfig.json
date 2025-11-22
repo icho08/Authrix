@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     
-    "lib": ["ESNext" , "DOM"],         
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],         
     "target": "ESNext",
     "module": "Preserve",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
      
     // Bundler mode
     "moduleResolution": "bundler",
@@ -25,5 +27,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
