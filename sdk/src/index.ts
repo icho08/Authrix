@@ -1,5 +1,6 @@
 export { AuthClient } from './client/AuthClient';
 export { useAuth, AuthProvider } from './hooks';
+export { logger, createLogger } from './utils/logger';
 export type { 
   AuthConfig, 
   RegisterData, 

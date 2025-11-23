@@ -1,8 +1,18 @@
 {
-  "name": "tala-sdk",
-  "module": "index.ts",
+  "name": "authrix-sdk",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "type": "module",
-  "private": true,
+  "scripts": {
+    "build": "bun run build:clean && bun run build:bundle",
+    "build:clean": "rm -rf dist",
+    "build:bundle": "bun build src/index.ts --outdir dist --target node --format esm",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "dev": "bun run src/index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/react": "^18.0.0"

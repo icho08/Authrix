@@ -1,5 +1,6 @@
 import { createRateLimiter } from './rateLimiter';
 import { withRetry } from './retry';
+import { logger } from './logger';
 
 export class HttpClient {
   private baseUrl: string;
@@ -10,6 +11,7 @@ export class HttpClient {
   constructor(baseUrl: string, apiKey: string) {
     this.baseUrl = baseUrl;
     this.apiKey = apiKey;
+    logger.info('HttpClient initialized', { baseUrl });
   }
 
   setTokenRefreshCallback(callback: () => Promise<string>) {
@@ -32,9 +34,11 @@ export class HttpClient {
   async request<T = any>(endpoint: string, options: RequestInit = {}, accessToken?: string): Promise<T> {
     if (!this.rateLimiter.canMakeRequest()) {
       const retryAfter = this.rateLimiter.getRetryAfter();
+      logger.warn('Rate limit exceeded', { endpoint, retryAfter });
       throw new Error(`Rate limit exceeded. Retry after ${retryAfter}ms`);
     }
     return withRetry(async () => {
+      logger.debug('Making request', { endpoint, hasToken: !!accessToken });
       
       let response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
@@ -45,7 +49,9 @@ export class HttpClient {
       });
 
       if (response.status === 401 && this.onTokenExpired && accessToken) {
+        logger.info('Token expired, refreshing', { endpoint });
         const newToken = await this.onTokenExpired();
+        logger.debug('Token refreshed, retrying request');
         
         response = await fetch(`${this.baseUrl}${endpoint}`, {
           ...options,
@@ -58,9 +64,11 @@ export class HttpClient {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ message: 'Request failed' })) as { message?: string };
+        logger.error('Request failed', { endpoint, status: response.status, error: error.message });
         throw new Error(`HTTP ${response.status}: ${error.message || 'Request failed'}`);
       }
 
+      logger.debug('Request successful', { endpoint, status: response.status });
       return response.json() as Promise<T>;
     }, { maxRetries: 3, baseDelay: 1000 });
   }

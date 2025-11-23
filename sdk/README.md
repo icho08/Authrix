@@ -1,36 +1,89 @@
-# Auth SDK
+# Authrix Authentication SDK
+
+Production-ready authentication SDK with React hooks, automatic token refresh, rate limiting, and comprehensive error handling.
+
+## Features
+
+- 🔐 Complete authentication flow (login, register, logout, password reset)
+- 🔄 Automatic token refresh with retry logic
+- 🛡️ Built-in rate limiting and request retry
+- ⚛️ React hooks for seamless integration
+- 🍪 Secure cookie-based token storage
+- 📝 Comprehensive TypeScript support
+- 🔍 Configurable logging system
 
 ## Installation
+
 ```bash
-bun install
+npm install authrix-sdk
+# or
+bun install authrix-sdk
 ```
 
-## Usage
-```typescript
-import AuthSDK from './index';
+## Quick Start
 
-const auth = new AuthSDK({
+```typescript
+import { AuthClient, useAuth } from 'authrix-sdk';
+
+// Initialize client
+const authClient = new AuthClient({
   apiKey: 'your-api-key',
   secretKey: 'your-secret-key',
-  baseUrl: 'http://localhost:8000' // optional
+  baseUrl: 'https://api.example.com'
 });
 
-// Register
-const user = await auth.register({
-  email: 'user@example.com',
-  password: 'password123',
-  username: 'johndoe'
-});
+// React Hook Usage
+function LoginComponent() {
+  const { login, user, loading, error } = useAuth();
+  
+  const handleLogin = async () => {
+    await login({ email: 'user@example.com', password: 'password' });
+  };
+  
+  return (
+    <div>
+      {user ? `Welcome ${user.email}` : 
+        <button onClick={handleLogin}>Login</button>
+      }
+    </div>
+  );
+}
+```
 
-// Login
-const session = await auth.login({
-  email: 'user@example.com',
-  password: 'password123'
-});
+## API Reference
 
-// Refresh token
-const newTokens = await auth.refreshToken('refresh-token');
+### AuthClient Methods
 
-// Logout
-await auth.logout('refresh-token');
+- `login(credentials)` - Authenticate user
+- `register(userData)` - Create new account  
+- `logout(type?)` - Sign out (current device or all devices)
+- `refreshToken()` - Refresh access token
+- `resetPassword(email)` - Send password reset email
+- `verifyEmail(token)` - Verify email address
+
+### Configuration Options
+
+```typescript
+interface AuthConfig {
+  apiKey: string;
+  secretKey: string;
+  baseUrl?: string;
+  logLevel?: 'debug' | 'info' | 'warn' | 'error';
+  rateLimitConfig?: {
+    maxRequests: number;
+    windowMs: number;
+  };
+}
+```
+
+## Testing
+
+```bash
+bun test
+```
+
+## Building
+
+```bash
+bun run build
 ```

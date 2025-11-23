@@ -39,6 +39,6 @@ export class Config {
     if (typeof globalThis !== 'undefined' && 'window' in globalThis) {
       return (globalThis as any).window.location.origin;
     }
-    return 'http://localhost:3000';
+    return '';
   }
 }

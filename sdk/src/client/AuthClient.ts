@@ -156,6 +156,8 @@ export class AuthClient {
     });
   }
 
+
+  
   async getSessions(): Promise<Session[]> {
     return this.http.request<Session[]>('/api/auth/sessions', {}, this.accessToken);
   }
