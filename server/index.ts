@@ -35,6 +35,10 @@ app.use('/api/auth/', auth);
 
 app.use(errorHandler);
 
-app.listen(3000 , ()=>{ 
-    logger.info("Server is running at http://localhost:3000"); 
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT , ()=>{ 
+    logger.info(`Server is running on port ${PORT}`); 
 })
+
+export default app;
