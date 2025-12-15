@@ -282,8 +282,8 @@ export const requestPasswordReset = async (req: Request, res: Response, next: Ne
       return res.status(200).json({ message: "If the email exists, a reset link has been sent" });
     }
     
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); 
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+    const resetTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry 
     
     await prisma.user.update({
       where: { id: user.id },
@@ -296,7 +296,7 @@ export const requestPasswordReset = async (req: Request, res: Response, next: Ne
       appName : user.application.name,}
     );
     
-    res.status(200).json({ message: "If the email exists, a reset link has been sent" });
+    res.status(200).json({ message: "If the email exists, a reset code has been sent" });
   } catch (error) {
     next(error);
   }

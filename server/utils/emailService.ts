@@ -80,16 +80,28 @@ interface PasswordResetOptions {
 
 }
 export const SendPasswordResetEmail = async( options : PasswordResetOptions) => { 
-  const baseUrl = process.env.CLIENT_URL || 'system error';
-  const resetUrl = `${baseUrl}/reset-password?token=${options.token}`;
   await transporter.sendMail({
     to: options.to,
     subject: `Reset your ${options.appName} password`,
     html: `
-      <h3>Reset your ${options.appName} password</h3>
-      <p>Click the link below to reset your password:</p>
-      <a href="${resetUrl}">Reset Password</a>
-      <p>This link expires in 24 hours.</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Reset your ${options.appName} password</h2>
+        <p>You requested to reset your password. Use the code below to reset your password:</p>
+        
+        <div style="background-color: #f8f9fa; border: 2px dashed #dee2e6; padding: 20px; text-align: center; margin: 20px 0;">
+          <h1 style="font-size: 32px; letter-spacing: 8px; margin: 0; color: #495057; font-family: monospace;">
+            ${options.token}
+          </h1>
+        </div>
+        
+        <p><strong>This code expires in 15 minutes.</strong></p>
+        <p>If you didn't request this password reset, please ignore this email.</p>
+        
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #dee2e6;">
+        <p style="color: #6c757d; font-size: 14px;">
+          This is an automated message from ${options.appName}. Please do not reply to this email.
+        </p>
+      </div>
     `
   });
 }

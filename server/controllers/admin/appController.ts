@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createApplication, deleteApp, updateApplicationSettings } from '../../models/admin/Application';
+import { createApplication, deleteApp, getUserApplication, updateApplicationSettings } from '../../models/admin/Application';
 import { logger } from '../../config/logger';
 
 export const createApp = async (req: Request, res: Response) => {  
@@ -22,6 +22,30 @@ export const createApp = async (req: Request, res: Response) => {
   logger.error(err);
   res.status(500).json({ error: "something went wrong while creating app" });
 }
+};
+
+export const getMyApp = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const app = await getUserApplication(user.userId);
+
+    if (!app) {
+      return res.status(200).json({ app: null });
+    }
+
+    if ('error' in (app as any)) {
+      return res.status(500).json({ error: (app as any).error });
+    }
+
+    return res.status(200).json({ app });
+  } catch (err: any) {
+    logger.error(err);
+    return res.status(500).json({ error: "something went wrong while fetching app" });
+  }
 };
 
 export const updateAppSettings = async(req : Request , res  : Response) => { 

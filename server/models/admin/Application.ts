@@ -7,6 +7,16 @@ export const createApplication = async (name : string , id : string) => {
     if (!name) {
       return { error: "name is required" };
     }
+
+    // Only allow one application per user
+    const existing = await prisma.application.findFirst({
+      where: { userId: id }
+    });
+
+    if (existing) {
+      return { error: "You already have an application" };
+    }
+
     const apiKey = `ak_${nanoid()}`;
     const secretKey = crypto.randomBytes(48).toString("base64");
     const app = await prisma.application.create({
@@ -15,10 +25,32 @@ export const createApplication = async (name : string , id : string) => {
     if (!app) {
       return { error: "something went wrong" };
     }
-    return { apiKey, secretKey, appId: app.id , name : app.name };
+    return { apiKey, secretKey, appId: app.id , name : app.name, requireEmailVerification: app.requireEmailVerification };
   } catch (err: any) {
     logger.error(err);
     return {error : "Failed to create application"}
+  }
+};
+
+export const getUserApplication = async (userId: string) => {
+  try {
+    const app = await prisma.application.findFirst({
+      where: { userId },
+      select: {
+        id: true,
+        name: true,
+        apiKey: true,
+        secretKey: true,
+        requireEmailVerification: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    return app;
+  } catch (err: any) {
+    logger.error(err);
+    return { error: "Failed to fetch application" };
   }
 };
 
