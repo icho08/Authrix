@@ -50,6 +50,7 @@ export const updateAppSettings = async(req : Request , res  : Response) => {
    return res.status(500).json({ error: "something went wrong while updating app" });
   }
 }
+
 export const DeleteApp = async (req : Request , res : Response) => { 
   try { 
     const {appId} = req.body;

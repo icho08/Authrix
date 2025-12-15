@@ -29,7 +29,7 @@ import { AuthClient, useAuth } from 'authrix-sdk';
 const authClient = new AuthClient({
   apiKey: 'your-api-key',
   secretKey: 'your-secret-key',
-  baseUrl: 'https://api.example.com'
+  baseUrl: 'https://api.authrix.xyz'
 });
 
 // React Hook Usage

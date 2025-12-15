@@ -4,7 +4,6 @@ import type {
   AuthConfig, 
   RegisterData, 
   LoginData, 
-  ResetPasswordData, 
   User, 
   AuthResponse, 
   Session 
