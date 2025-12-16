@@ -62,7 +62,13 @@ export default function Settings() {
     setSaving(true)
     try {
       const updatedApp = await adminApi.updateAppSettings(app.id, settings)
-      setApp(prev => ({ ...prev, ...updatedApp }))
+      console.log('Updated app:', updatedApp)
+      // Update app state with the new settings we just saved
+      setApp(prev => ({ 
+        ...prev, 
+        name: settings.appName,
+        requireEmailVerification: settings.requireEmailVerification
+      }))
       toast.success('Settings updated successfully!')
     } catch (error) {
       console.error('Failed to update settings:', error)

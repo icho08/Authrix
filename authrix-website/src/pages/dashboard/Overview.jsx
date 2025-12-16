@@ -49,7 +49,7 @@ export default function Overview() {
   const [copied, setCopied] = useState(null)
   const [showSecret, setShowSecret] = useState(false)
   const [error, setError] = useState('')
-
+  const [showApiKey , setShowApiKey] = useState(false)
   useEffect(() => {
     if (user) {
       loadUserApp()
@@ -281,14 +281,18 @@ export default function Overview() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium">API Key</Label>
-                  <p className="text-xs text-muted-foreground">Use in client-side code</p>
+                  <p className="text-xs text-muted-foreground">Use in client-side code (Do not share this key ) </p>
                 </div>
               </div>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Input readOnly value={app.apiKey} className="pr-10 font-mono text-sm bg-muted/50" />
+                   
+                  <Input readOnly value={showApiKey ? app.apiKey : "********"} className="pr-10 font-mono text-sm bg-muted/50" />
+            
                 </div>
+                 
                 <TooltipProvider>
+
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button variant="outline" size="icon" onClick={() => copyToClipboard(app.apiKey, "api")}>
@@ -302,6 +306,17 @@ export default function Overview() {
                     <TooltipContent>Copy API Key</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" size="icon" onClick={() => setShowApiKey(!showApiKey)}>
+                        {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{showApiKey ? "Hide" : "Show"}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
               </div>
             </div>
 

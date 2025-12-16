@@ -1,5 +1,5 @@
 const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
-const apiKey = import.meta.env.VITE_API_KEY || 'ak_KJ7OIyN1kYPShKLmdc6Aj'
+const apiKey = import.meta.env.VITE_API_KEY || ''
 
 const getAuthToken = () => {
   const cookies = document.cookie.split(';')
@@ -52,7 +52,11 @@ export const adminApi = {
 
   updateAppSettings: (appId, settings) => apiRequest('/api/admin/apps/update-settings', {
     method: 'POST',
-    body: JSON.stringify({ appId, ...settings })
+    body: JSON.stringify({ 
+      appId, 
+      name: settings.appName,
+      requireEmailVerification: settings.requireEmailVerification
+    })
   }),
 
   deleteApp: (appId) => apiRequest('/api/admin/apps/delete', {
