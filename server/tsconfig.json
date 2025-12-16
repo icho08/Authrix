@@ -2,14 +2,12 @@
   "compilerOptions": {
     "lib": ["ESNext"],
     "target": "esnext",
-    "module": "esnext",
+    "module": "commonjs",
     "moduleDetection": "force",
     "moduleResolution": "node",
     "allowJs": true,
-
-    // Bundler mode
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "outDir": "./dist",
+    "rootDir": "./",
 
     // Best practices
     "strict": true,
