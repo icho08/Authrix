@@ -278,44 +278,44 @@ function App() {
 }`
 
   return (
-    <section className="py-24 bg-foreground">
+    <section className="py-24 bg-muted/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <p className="text-xs font-medium text-background/60 uppercase tracking-wider mb-3">For Developers</p>
-            <h2 className="text-3xl md:text-4xl font-semibold text-background mb-6 tracking-tight">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">For Developers</p>
+            <h2 className="text-3xl md:text-4xl font-semibold text-foreground mb-6 tracking-tight">
               Simple code.
-              <span className="block text-background/60">Big results.</span>
+              <span className="block text-muted-foreground">Big results.</span>
             </h2>
-            <p className="text-background/70 mb-8 leading-relaxed">
+            <p className="text-muted-foreground mb-8 leading-relaxed">
               Add login to your app with just a few lines of code. We handle the hard stuff — you build your product.
             </p>
             <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-sm text-background/60">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                 Works with TypeScript
               </div>
-              <div className="flex items-center gap-2 text-sm text-background/60">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                 Easy React hooks
               </div>
-              <div className="flex items-center gap-2 text-sm text-background/60">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                 Auto login refresh
               </div>
             </div>
           </div>
 
-          <div className="bg-background/5 backdrop-blur rounded-xl border border-background/10 overflow-hidden">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-background/10">
+          <div className="bg-card backdrop-blur rounded-xl border border-border overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
               <div className="flex gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-400/80"></div>
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80"></div>
                 <div className="w-2.5 h-2.5 rounded-full bg-green-400/80"></div>
               </div>
-              <span className="text-xs text-background/50 font-mono ml-2">App.jsx</span>
+              <span className="text-xs text-muted-foreground font-mono ml-2">App.jsx</span>
             </div>
-            <pre className="p-6 text-sm leading-relaxed overflow-x-auto font-mono">
+            <pre className="p-6 text-sm leading-relaxed overflow-x-auto font-mono bg-muted/50">
               <code className="text-emerald-400">{codeString}</code>
             </pre>
           </div>
