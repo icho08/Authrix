@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { AuthClient } from '../../../sdk/src/client/AuthClient.ts'
+import {AuthClient} from 'authrix-sdk'
 
 const AuthContext = createContext()
 
@@ -24,7 +24,13 @@ export function AuthProvider({ children }) {
       }
     } catch (error) {
       console.error('Auth check failed:', error)
+      // Clear tokens and user state on auth failure
       setUser(null)
+      try {
+        await authClient.logout()
+      } catch (logoutError) {
+        // Ignore logout errors, tokens might already be cleared
+      }
     } finally {
       setLoading(false)
     }

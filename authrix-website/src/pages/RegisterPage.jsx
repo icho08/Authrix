@@ -27,7 +27,7 @@ export default function RegisterPage() {
 
     if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all fields')
-      return
+      returnw
     }
 
     if (formData.password !== formData.confirmPassword) {

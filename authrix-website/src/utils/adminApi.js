@@ -58,5 +58,15 @@ export const adminApi = {
   deleteApp: (appId) => apiRequest('/api/admin/apps/delete', {
     method: 'POST',
     body: JSON.stringify({ appId })
+  }),
+
+  getAppUsers: (appId) => apiRequest('/api/admin/apps/application-users', {
+    method: 'POST',
+    body: JSON.stringify({ appId })
+  }),
+
+  getUserSessions: (userId) => apiRequest('/api/admin/apps/user-sessions', {
+    method: 'POST',
+    body: JSON.stringify({ userId })
   })
 }

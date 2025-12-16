@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Moon, Sun, Settings, Copy, Trash2, Plus, Code, Key, Shield, Users } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 import { adminApi } from '../utils/adminApi'
 
 export default function Dashboard() {
   const { user, logout, loading: authLoading, baseUrl } = useAuth()
+  const { isDark, toggleTheme } = useTheme()
   const [app, setApp] = useState(null)
   const [loading, setLoading] = useState(false)
   const [showCreateApp, setShowCreateApp] = useState(false)
@@ -119,31 +122,37 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
-      <header className="backdrop-blur-sm bg-white/80 border-b border-slate-200/60 sticky top-0 z-50">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">A</span>
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Authrix</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-white">Authrix</span>
               </Link>
-              <div className="h-6 w-px bg-slate-300"></div>
-              <span className="text-slate-600 font-medium">Dashboard</span>
+              <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+              <span className="text-gray-600 dark:text-gray-300 font-medium">Dashboard</span>
             </div>
             <div className="flex items-center space-x-4">
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-600 font-semibold text-sm">{user.username?.[0] || user.email?.[0] || 'U'}</span>
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm">{user.username?.[0] || user.email?.[0] || 'U'}</span>
                 </div>
-                <span className="text-slate-700 font-medium">{user.username || user.email}</span>
+                <span className="text-gray-700 dark:text-gray-200 font-medium">{user.username || user.email}</span>
               </div>
               <button
                 onClick={handleLogout}
-                className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 Sign Out
               </button>
@@ -154,7 +163,7 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto py-8 px-6 lg:px-8">
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+          <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm">
             {error}
           </div>
         )}
@@ -162,22 +171,18 @@ export default function Dashboard() {
         {!app ? (
           // No app created yet
           <div className="text-center py-16">
-            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-r from-blue-100 to-indigo-100 mb-6">
-              <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-2xl bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 mb-6">
+              <Plus className="h-10 w-10 text-blue-600 dark:text-blue-400" />
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Create Your First Application</h3>
-            <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Create Your First Application</h3>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
               Get started by creating an application to receive your API keys and begin integrating authentication.
             </p>
             <button
               onClick={() => setShowCreateApp(true)}
-              className="inline-flex items-center px-6 py-3 border border-transparent shadow-lg text-base font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:scale-105"
+              className="inline-flex items-center px-8 py-4 border border-transparent shadow-lg text-base font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:scale-105"
             >
-              <svg className="-ml-1 mr-3 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
+              <Plus className="w-5 h-5 mr-2" />
               Create Application
             </button>
           </div>
@@ -185,80 +190,94 @@ export default function Dashboard() {
           // App exists - show app details
           <div className="space-y-8">
             {/* App Overview */}
-            <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl p-8 shadow-xl shadow-slate-200/50">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-8 shadow-sm transition-colors">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">{app.name}</h2>
-                  <p className="text-slate-600">Application ID: {app.id}</p>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{app.name}</h2>
+                  <p className="text-gray-600 dark:text-gray-400">Application ID: {app.id}</p>
                 </div>
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setShowSettings(true)}
-                    className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
                   >
+                    <Settings className="w-4 h-4 mr-2" />
                     Settings
                   </button>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800">
                     <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
                     Active
                   </span>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">API Key</label>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center mb-4">
+                      <Key className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+                      <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">API Key</label>
+                    </div>
                     <div className="flex rounded-xl shadow-sm">
                       <input
                         type="text"
                         readOnly
                         value={app.apiKey}
-                        className="flex-1 min-w-0 block w-full px-4 py-3 rounded-l-xl border border-slate-200 bg-slate-50 text-slate-600 text-sm font-mono"
+                        className="flex-1 min-w-0 block w-full px-4 py-3 rounded-l-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-mono"
                       />
                       <button
                         onClick={() => copyToClipboard(app.apiKey)}
-                        className="inline-flex items-center px-4 py-3 border border-l-0 border-slate-200 rounded-r-xl bg-slate-50 text-slate-600 text-sm hover:bg-slate-100 transition-colors"
+                        className="inline-flex items-center px-4 py-3 border border-l-0 border-gray-200 dark:border-gray-600 rounded-r-xl bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                       >
-                        Copy
+                        <Copy className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Secret Key</label>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center mb-4">
+                      <Shield className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
+                      <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">Secret Key</label>
+                    </div>
                     <div className="flex rounded-xl shadow-sm">
                       <input
                         type="password"
                         readOnly
                         value={app.secretKey}
-                        className="flex-1 min-w-0 block w-full px-4 py-3 rounded-l-xl border border-slate-200 bg-slate-50 text-slate-600 text-sm font-mono"
+                        className="flex-1 min-w-0 block w-full px-4 py-3 rounded-l-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-mono"
                       />
                       <button
                         onClick={() => copyToClipboard(app.secretKey)}
-                        className="inline-flex items-center px-4 py-3 border border-l-0 border-slate-200 rounded-r-xl bg-slate-50 text-slate-600 text-sm hover:bg-slate-100 transition-colors"
+                        className="inline-flex items-center px-4 py-3 border border-l-0 border-gray-200 dark:border-gray-600 rounded-r-xl bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                       >
-                        Copy
+                        <Copy className="w-4 h-4" />
                       </button>
                     </div>
-                    <p className="mt-2 text-sm text-slate-500">
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
                       Keep your secret key safe and never expose it in client-side code.
                     </p>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                  <h4 className="text-lg font-semibold text-slate-900 mb-4">Application Settings</h4>
-                  <div className="space-y-3">
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center mb-4">
+                    <Settings className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Application Settings</h4>
+                  </div>
+                  <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-700">Email Verification</span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${app.requireEmailVerification ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Email Verification</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${app.requireEmailVerification ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'}`}>
                         {app.requireEmailVerification ? 'Required' : 'Optional'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-700">Created</span>
-                      <span className="text-sm text-slate-600">{new Date(app.createdAt).toLocaleDateString()}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Created</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{new Date(app.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Status</span>
+                      <span className="text-sm text-green-600 dark:text-green-400 font-medium">Production Ready</span>
                     </div>
                   </div>
                 </div>
@@ -266,26 +285,29 @@ export default function Dashboard() {
             </div>
 
             {/* Quick Start Guide */}
-            <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl p-8 shadow-xl shadow-slate-200/50">
-              <h3 className="text-xl font-bold text-slate-900 mb-6">Quick Start Guide</h3>
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-8 shadow-sm">
+              <div className="flex items-center mb-6">
+                <Code className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-3" />
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Quick Start Guide</h3>
+              </div>
               
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div>
-                  <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center">
-                    <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3">1</span>
-                    Install the SDK
-                  </h4>
-                  <div className="bg-slate-900 rounded-xl p-4 ml-9">
+                  <div className="flex items-center mb-4">
+                    <span className="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold mr-4">1</span>
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Install the SDK</h4>
+                  </div>
+                  <div className="bg-gray-900 dark:bg-gray-950 rounded-xl p-4 ml-12 border border-gray-700">
                     <code className="text-green-400 text-sm">npm install authrix-sdk</code>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center">
-                    <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3">2</span>
-                    Initialize the client
-                  </h4>
-                  <div className="bg-slate-900 rounded-xl p-4 ml-9">
+                  <div className="flex items-center mb-4">
+                    <span className="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold mr-4">2</span>
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Initialize the client</h4>
+                  </div>
+                  <div className="bg-gray-900 dark:bg-gray-950 rounded-xl p-4 ml-12 border border-gray-700">
                     <pre className="text-green-400 text-sm overflow-x-auto">{`import { AuthClient } from 'authrix-sdk';
 
 const authClient = new AuthClient({
@@ -296,11 +318,11 @@ const authClient = new AuthClient({
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center">
-                    <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3">3</span>
-                    Use in your React app
-                  </h4>
-                  <div className="bg-slate-900 rounded-xl p-4 ml-9">
+                  <div className="flex items-center mb-4">
+                    <span className="bg-blue-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold mr-4">3</span>
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Use in your React app</h4>
+                  </div>
+                  <div className="bg-gray-900 dark:bg-gray-950 rounded-xl p-4 ml-12 border border-gray-700">
                     <pre className="text-green-400 text-sm overflow-x-auto">{`import { useAuth } from 'authrix-sdk';
 
 function App() {
@@ -320,6 +342,30 @@ function App() {
   );
 }`}</pre>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Users Section */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-8 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <Users className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-3" />
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Application Users</h3>
+                </div>
+                <span className="text-sm text-gray-500 dark:text-gray-400">Total: 0 users</span>
+              </div>
+              
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No users yet</h4>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                  Users will appear here once they register through your application
+                </p>
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 max-w-md mx-auto">
+                  <p className="text-sm text-blue-800 dark:text-blue-300">
+                    💡 Tip: Use the SDK integration above to start accepting user registrations
+                  </p>
                 </div>
               </div>
             </div>
