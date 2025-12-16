@@ -22,20 +22,37 @@ export class AuthClient {
     this.refreshToken = CookieManager.getCookie('auth_refresh_token') || undefined;
     
     if (!this.accessToken && this.refreshToken) {
-      this.refreshAccessToken();
+      this.refreshAccessToken().catch(() => {
+        // If refresh fails on initialization, clear tokens silently
+        this.clearTokens();
+      });
     }
     
     this.http.setTokenRefreshCallback(async () => {
       if (!this.refreshToken) throw new Error('No refresh token');
+      
+      try {
+        const result = await this.http.request<{ accessToken: string; refreshToken: string }>(
+          '/api/auth/refresh',
+          { method: 'POST' },
+          this.refreshToken
+        );
 
-      const result = await this.http.request<{ accessToken: string; refreshToken: string }>(
-        '/api/auth/refresh',
-        { method: 'POST' },
-        this.refreshToken
-      );
-
-      this.setTokens(result.accessToken, result.refreshToken);
-      return result.accessToken;
+        this.setTokens(result.accessToken, result.refreshToken);
+        return result.accessToken;
+      } catch (error) {
+        // Only clear tokens for specific token-related errors, not network/server errors
+        if (error instanceof Error && (
+          error.message.includes('Invalid or expired refresh token') ||
+          error.message.includes('refresh token') ||
+          (error.message.includes('HTTP 400') && error.message.includes('refresh')) ||
+          (error.message.includes('HTTP 401') && error.message.includes('refresh'))
+        )) {
+          this.clearTokens();
+        }
+        // For other errors (network, server down, etc.), keep tokens and let retry happen
+        throw error;
+      }
     });
   }
 
@@ -49,7 +66,15 @@ export class AuthClient {
       
       this.setTokens(result.accessToken, result.refreshToken);
     } catch (error) {
-      this.clearTokens();
+      // Only clear tokens for specific token-related errors, not network/server errors
+      if (error instanceof Error && (
+        error.message.includes('Invalid or expired refresh token') ||
+        error.message.includes('refresh token') ||
+        (error.message.includes('HTTP 400') && error.message.includes('refresh')) ||
+        (error.message.includes('HTTP 401') && error.message.includes('refresh'))
+      )) {
+        this.clearTokens();
+      }
       throw error;
     }
   }

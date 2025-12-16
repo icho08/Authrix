@@ -18,14 +18,16 @@ export class HttpClient {
     this.onTokenExpired = callback;
   }
 
-  private getHeaders(accessToken?: string): Record<string, string> {
+  private getHeaders(accessToken?: string ): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-API-Key': this.apiKey,
+      'x-refresh-token' : accessToken || '',
     };
     
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`;
+      headers['x-refresh-token'] = accessToken;
     }
     
     return headers;

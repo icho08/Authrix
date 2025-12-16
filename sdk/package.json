@@ -1,11 +1,17 @@
 {
   "name": "authrix-sdk",
-  "version": "1.0.0",
+  "version": "1.1.6",
   "description": "Authrix - The only authentication SDK you'll ever need for your React applications.",
   "main": "dist/index.js",
-  "module": "dist/index.esm.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "files": [
     "dist",
     "README.md",
@@ -21,20 +27,20 @@
     "jwt",
     "hooks"
   ],
-  "author": "Authrix Team",
+  "author": "icho08",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/icho08/authrix-sdk"
   },
-  "homepage": "https://authrix.dev",
+  "homepage": "https://authrix.chhabi.xyz",
   "bugs": {
     "url": "https://github.com/icho08/authrix-sdk/issues"
   },
   "scripts": {
     "build": "bun run build:clean && bun run build:bundle && bun run build:types",
     "build:clean": "rm -rf dist",
-    "build:bundle": "bun build src/index.ts --outdir dist --target node --format esm --minify",
+    "build:bundle": "bun build src/index.ts --outdir dist --target browser --format esm --minify --splitting --outfile index.js",
     "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
     "test": "bun test",
     "test:watch": "bun test --watch",
@@ -49,12 +55,15 @@
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "react": "^18.0.0"
+    "react": "^18.0.0 || ^19.0.0"
   },
   "engines": {
     "node": ">=16.0.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "authrix-sdk": "^1.0.1"
   }
 }
