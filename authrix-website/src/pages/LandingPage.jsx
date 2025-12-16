@@ -11,14 +11,14 @@ export function Header() {
             <div className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center">
               <Shield className="w-5 h-5 text-background" />
             </div>
-            <span className="text-xl font-semibold text-foreground tracking-tight">Authrix</span>
+            <a className="text-xl font-semibold text-foreground tracking-tight">Authrix</a>
           </div>
 
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a href="/#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Features
             </a>
-            <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a href="/#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               How it Works
             </a>
             <a href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -121,7 +121,7 @@ function HeroWithDashboard() {
 
               {/* Static dashboard image */}
               <div className="min-h-[320px] lg:min-h-[380px] bg-muted/20">
-                <img src="/public/dashboard.png" alt="Authrix Dashboard Preview" className="w-full h-auto object-cover" />
+                <img src="/dashboard.png" alt="Authrix Dashboard Preview" className="w-full h-auto object-cover" />
               </div>
             </div>
           </div>
