@@ -1,24 +1,60 @@
 {
   "name": "authrix-sdk",
   "version": "1.0.0",
+  "description": "Authrix - The only authentication SDK you'll ever need for your React applications.",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "authentication",
+    "auth",
+    "react",
+    "typescript",
+    "sdk",
+    "jwt",
+    "hooks"
+  ],
+  "author": "Authrix Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/icho08/authrix-sdk"
+  },
+  "homepage": "https://authrix.dev",
+  "bugs": {
+    "url": "https://github.com/icho08/authrix-sdk/issues"
+  },
   "scripts": {
-    "build": "bun run build:clean && bun run build:bundle",
+    "build": "bun run build:clean && bun run build:bundle && bun run build:types",
     "build:clean": "rm -rf dist",
-    "build:bundle": "bun build src/index.ts --outdir dist --target node --format esm",
+    "build:bundle": "bun build src/index.ts --outdir dist --target node --format esm --minify",
+    "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist",
     "test": "bun test",
     "test:watch": "bun test --watch",
-    "dev": "bun run src/index.ts"
+    "dev": "bun run src/index.ts",
+    "prepublishOnly": "bun run build",
+    "prepack": "bun run build",
+    "postpack": "bun run build:clean"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/react": "^18.0.0"
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "typescript": "^5",
     "react": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

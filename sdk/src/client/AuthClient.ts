@@ -21,21 +21,19 @@ export class AuthClient {
     this.accessToken = CookieManager.getCookie('auth_access_token') || undefined;
     this.refreshToken = CookieManager.getCookie('auth_refresh_token') || undefined;
     
-
-    
     if (!this.accessToken && this.refreshToken) {
-      console.log('🔄 No access token but have refresh token, refreshing...');
       this.refreshAccessToken();
     }
     
     this.http.setTokenRefreshCallback(async () => {
       if (!this.refreshToken) throw new Error('No refresh token');
-      
-      const result = await this.http.request<AuthResponse>('/api/auth/refresh', {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken: this.refreshToken }),
-      });
-      
+
+      const result = await this.http.request<{ accessToken: string; refreshToken: string }>(
+        '/api/auth/refresh',
+        { method: 'POST' },
+        this.refreshToken
+      );
+
       this.setTokens(result.accessToken, result.refreshToken);
       return result.accessToken;
     });
@@ -43,36 +41,24 @@ export class AuthClient {
 
   private async refreshAccessToken() {
     try {
-      console.log(' Refreshing with token:', this.refreshToken?.substring(0, 20) + '...');
-      
-      const result = await this.http.request<AuthResponse>('/api/auth/refresh', {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken: this.refreshToken }),
-      });
+      const result = await this.http.request<{ accessToken: string; refreshToken: string }>(
+        '/api/auth/refresh',
+        { method: 'POST' },
+        this.refreshToken
+      );
       
       this.setTokens(result.accessToken, result.refreshToken);
-      console.log('Access token refreshed successfully');
     } catch (error) {
-      console.error(' Failed to refresh access token:', error);
-      console.log(' Clearing invalid tokens...');
       this.clearTokens();
+      throw error;
     }
   }
 
   private setTokens(accessToken: string, refreshToken: string) {
-    console.log(' Setting tokens:', {
-      accessToken: !!accessToken,
-      refreshToken: !!refreshToken,
-      accessTokenLength: accessToken?.length,
-      refreshTokenLength: refreshToken?.length
-    });
-    
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
     CookieManager.setCookie('auth_access_token', accessToken, 1); 
     CookieManager.setCookie('auth_refresh_token', refreshToken, 30);
-    
-    console.log(' Cookies after setting:', document.cookie);
   }
 
   private clearTokens() {
@@ -108,26 +94,23 @@ export class AuthClient {
     return result;
   }
 
-  async logout(): Promise<{ message: string }> {  
+  async logout(): Promise<{ message: string }> {
     const refreshToken = this.refreshToken || CookieManager.getCookie('auth_refresh_token');
-    
+
     if (refreshToken) {
       try {
-        await this.http.request<{ message: string }>('/api/auth/logout', {
-          method: 'POST',
-          body: JSON.stringify({ refreshToken }),
-        });
+        // Server expects refresh token in Authorization header
+        await this.http.request<{ message: string }>('/api/auth/logout', { method: 'POST' }, refreshToken);
       } catch (error) {
         console.warn('Logout request failed, clearing local tokens:', error);
       }
     }
-    
+
     this.clearTokens();
     return { message: 'Logged out successfully' };
   }
 
   async getCurrentUser(): Promise<User> {
-    console.log('getCurrentUser called, accessToken:', !!this.accessToken);
     return this.http.request<User>('/api/auth/profile', {}, this.accessToken);
   }
 
@@ -158,22 +141,24 @@ export class AuthClient {
 
   
   async getSessions(): Promise<Session[]> {
-    return this.http.request<Session[]>('/api/auth/sessions', {}, this.accessToken);
+    const result = await this.http.request<{ sessions: Session[] }>('/api/auth/sessions', {}, this.accessToken);
+    return result.sessions;
   }
 
-  async refreshTokens(): Promise<AuthResponse> {
+  async refreshTokens(): Promise<{ accessToken: string; refreshToken: string }> {
     const refreshToken = this.refreshToken || CookieManager.getCookie('auth_refresh_token');
     if (!refreshToken) throw new Error('No refresh token available');
 
-    const result = await this.http.request<AuthResponse>('/api/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refreshToken }),
-    });
-    
+    const result = await this.http.request<{ accessToken: string; refreshToken: string }>(
+      '/api/auth/refresh',
+      { method: 'POST' },
+      refreshToken
+    );
+
     if (result.accessToken && result.refreshToken) {
       this.setTokens(result.accessToken, result.refreshToken);
     }
-    
+
     return result;
   }
 

@@ -71,12 +71,21 @@ export function useAuth() {
 
   const register = async (data: RegisterData) => {
     if (!globalClient) throw new Error('AuthProvider not found');
-    
+
     globalLoading = true;
     notify();
-    
+
     try {
-      const result = await globalClient.register(data);
+      const result: any = await globalClient.register(data);
+
+      // If app requires email verification, the server returns { user, message } without tokens.
+      if (!result?.accessToken || !result?.refreshToken) {
+        globalUser = null;
+        globalLoading = false;
+        notify();
+        throw new Error(result?.message || 'Registration succeeded. Please verify your email before logging in.');
+      }
+
       globalUser = result.user;
       globalLoading = false;
       notify();
@@ -89,19 +98,34 @@ export function useAuth() {
 
   const logout = async () => {
     if (!globalClient) throw new Error('AuthProvider not found');
-    
-    console.log('Logout started...');
+
     globalLoading = true;
     notify();
-    
+
     try {
       await globalClient.logout();
-      console.log('Logout successful, clearing user...');
       globalUser = null;
       globalLoading = false;
       notify();
     } catch (error) {
-      console.error('Logout error:', error);
+      globalLoading = false;
+      notify();
+      throw error;
+    }
+  };
+
+  const logoutAll = async () => {
+    if (!globalClient) throw new Error('AuthProvider not found');
+
+    globalLoading = true;
+    notify();
+
+    try {
+      await globalClient.logoutAll();
+      globalUser = null;
+      globalLoading = false;
+      notify();
+    } catch (error) {
       globalLoading = false;
       notify();
       throw error;
@@ -114,6 +138,7 @@ export function useAuth() {
     login,
     register,
     logout,
+    logoutAll,
     isAuthenticated: !!user
   };
 }

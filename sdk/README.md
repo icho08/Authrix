@@ -1,6 +1,6 @@
 # Authrix Authentication SDK
 
-Production-ready authentication SDK with React hooks, automatic token refresh, rate limiting, and comprehensive error handling.
+Authentication SDK with React hooks, automatic token refresh, and comprehensive error handling.
 
 ## Features
 
@@ -17,34 +17,79 @@ Production-ready authentication SDK with React hooks, automatic token refresh, r
 ```bash
 npm install authrix-sdk
 # or
+yarn add authrix-sdk
+# or
 bun install authrix-sdk
 ```
 
 ## Quick Start
 
-```typescript
-import { AuthClient, useAuth } from 'authrix-sdk';
+### 1. Initialize the Client
 
-// Initialize client
+```typescript
+import { AuthClient, AuthProvider } from 'authrix-sdk';
+
 const authClient = new AuthClient({
   apiKey: 'your-api-key',
-  secretKey: 'your-secret-key',
-  baseUrl: 'https://api.authrix.xyz'
+  baseUrl: 'https://your-api-url.com'
 });
 
-// React Hook Usage
+// Wrap your app with AuthProvider
+function App() {
+  return (
+    <AuthProvider client={authClient}>
+      <YourApp />
+    </AuthProvider>
+  );
+}
+```
+
+### 2. Use Authentication Hooks
+
+```typescript
+import { useAuth } from 'authrix-sdk';
+
 function LoginComponent() {
-  const { login, user, loading, error } = useAuth();
+  const { login, register, user, loading, logout } = useAuth();
   
   const handleLogin = async () => {
-    await login({ email: 'user@example.com', password: 'password' });
+    try {
+      await login({ 
+        email: 'user@example.com', 
+        password: 'password' 
+      });
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   };
+  
+  const handleRegister = async () => {
+    try {
+      await register({
+        email: 'user@example.com',
+        password: 'password',
+        username: 'username'
+      });
+    } catch (error) {
+      console.error('Registration failed:', error);
+    }
+  };
+  
+  if (loading) return <div>Loading...</div>;
   
   return (
     <div>
-      {user ? `Welcome ${user.email}` : 
-        <button onClick={handleLogin}>Login</button>
-      }
+      {user ? (
+        <div>
+          <p>Welcome, {user.username || user.email}!</p>
+          <button onClick={logout}>Logout</button>
+        </div>
+      ) : (
+        <div>
+          <button onClick={handleLogin}>Login</button>
+          <button onClick={handleRegister}>Register</button>
+        </div>
+      )}
     </div>
   );
 }
@@ -52,38 +97,105 @@ function LoginComponent() {
 
 ## API Reference
 
-### AuthClient Methods
+### AuthClient
 
-- `login(credentials)` - Authenticate user
-- `register(userData)` - Create new account  
-- `logout(type?)` - Sign out (current device or all devices)
-- `refreshToken()` - Refresh access token
-- `resetPassword(email)` - Send password reset email
-- `verifyEmail(token)` - Verify email address
+```typescript
+const client = new AuthClient({
+  apiKey: 'your-api-key',
+  baseUrl: 'https://your-api-url.com', // optional, defaults to localhost:3000
+  timeout: 10000, // optional, request timeout in ms
+  retries: 3 // optional, number of retries for failed requests
+});
+```
 
-### Configuration Options
+### useAuth Hook
+
+```typescript
+const {
+  user,           // Current user object or null
+  loading,        // Loading state
+  login,          // Login function
+  register,       // Register function  
+  logout,         // Logout function
+  logoutAll,      // Logout from all devices
+  isAuthenticated // Boolean authentication status
+} = useAuth();
+```
+
+### Methods
+
+#### login(credentials)
+```typescript
+await login({
+  email: 'user@example.com',
+  password: 'password'
+});
+```
+
+#### register(userData)
+```typescript
+await register({
+  email: 'user@example.com',
+  password: 'password',
+  username: 'username'
+});
+```
+
+#### logout()
+```typescript
+await logout(); // Logout from current device
+```
+
+#### logoutAll()
+```typescript
+await logoutAll(); // Logout from all devices
+```
+
+### Password Reset
+
+```typescript
+// Request password reset (server will send email with code)
+await client.requestPasswordReset('user@example.com');
+
+// Reset password with code from email
+await client.resetPassword('123456', 'newPassword');
+```
+
+## Configuration
 
 ```typescript
 interface AuthConfig {
-  apiKey: string;
-  secretKey: string;
-  baseUrl?: string;
-  logLevel?: 'debug' | 'info' | 'warn' | 'error';
-  rateLimitConfig?: {
-    maxRequests: number;
-    windowMs: number;
-  };
+  apiKey: string;        // Your application API key
+  baseUrl?: string;      // API base URL (optional)
+  timeout?: number;      // Request timeout in milliseconds (optional)
+  retries?: number;      // Number of retries for failed requests (optional)
 }
 ```
 
-## Testing
+## Error Handling
 
-```bash
-bun test
+The SDK throws descriptive errors that you can catch and handle:
+
+```typescript
+try {
+  await login({ email: 'user@example.com', password: 'wrong' });
+} catch (error) {
+  if (error.message.includes('Invalid credentials')) {
+    // Handle invalid login
+  } else if (error.message.includes('verify')) {
+    // Handle email verification required
+  }
+}
 ```
 
-## Building
+## TypeScript Support
 
-```bash
-bun run build
+The SDK is written in TypeScript and includes full type definitions:
+
+```typescript
+import type { User, AuthResponse, LoginData, RegisterData } from 'authrix-sdk';
 ```
+
+## License
+
+MIT

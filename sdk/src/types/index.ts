@@ -25,7 +25,7 @@ export interface ResetPasswordData {
 export interface User {
   id: string;
   email: string;
-  username: string;
+  username?: string;
   isVerified: boolean;
 }
 
@@ -40,9 +40,9 @@ export interface Session {
   deviceName?: string;
   browser?: string;
   os?: string;
+  deviceType?: string;
   location?: string;
   ipAddress?: string;
-  isActive: boolean;
   createdAt: string;
   lastUsedAt: string;
 }
@@ -53,6 +53,7 @@ export interface AuthContextType {
   login: (data: LoginData) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
+  logoutAll: () => Promise<void>;
   isAuthenticated: boolean;
 }
 

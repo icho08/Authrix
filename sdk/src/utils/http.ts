@@ -63,9 +63,12 @@ export class HttpClient {
       }
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'Request failed' })) as { message?: string };
-        logger.error('Request failed', { endpoint, status: response.status, error: error.message });
-        throw new Error(`HTTP ${response.status}: ${error.message || 'Request failed'}`);
+        const error = await response
+          .json()
+          .catch(() => ({ message: 'Request failed' })) as { message?: string; error?: string };
+        const message = error.error || error.message || 'Request failed';
+        logger.error('Request failed', { endpoint, status: response.status, error: message });
+        throw new Error(`HTTP ${response.status}: ${message}`);
       }
 
       logger.debug('Request successful', { endpoint, status: response.status });
