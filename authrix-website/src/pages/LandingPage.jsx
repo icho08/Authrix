@@ -1,271 +1,420 @@
-import { Link } from 'react-router-dom'
-import { 
-  Shield, 
-  Zap, 
-  Code, 
-  Users, 
-  Lock, 
-  Smartphone,
-  ArrowRight,
-  Check,
-  Github,
-  Play,
-  ChevronRight
-} from 'lucide-react'
+"use client"
+import { Shield, ArrowRight, Play, Check, Lock, Users, Zap, Code, Smartphone, Github } from "lucide-react"
 
-export default function LandingPage() {
+// Header Component
+export function Header() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white/95 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold text-gray-900">Authrix</span>
+    <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center">
+              <Shield className="w-5 h-5 text-background" />
             </div>
-            
-            <div className="flex items-center space-x-4">
-              <Link 
-                to="/login" 
-                className="text-gray-600 hover:text-gray-900 font-medium"
-              >
-                Sign In
-              </Link>
-              <Link 
-                to="/register" 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-              >
-                <span>Get Started</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+            <span className="text-xl font-semibold text-foreground tracking-tight">Authrix</span>
+          </div>
+
+          <nav className="hidden md:flex items-center gap-8">
+            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Features
+            </a>
+            <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              How it Works
+            </a>
+            <a href="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Pricing
+            </a>
+            <a href="/docs" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Docs
+            </a>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <a
+              href="/login"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              Sign In
+            </a>
+            <a
+              href="/register"
+              className="bg-foreground hover:bg-foreground/90 text-background px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              <span>Get Started</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
+  )
+}
 
-      {/* Hero Section */}
-      <section className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium mb-8">
-              <Zap className="w-4 h-4 mr-2" />
-              Authentication-as-a-Service
+function HeroWithDashboard() {
+  return (
+    <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left side - Hero content */}
+          <div>
+            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-secondary border border-border text-muted-foreground text-xs font-medium mb-6 tracking-wide">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></span>
+              Now in Beta — Free for everyone
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-              Ship Auth in
-              <span className="text-blue-600 block">Minutes, Not Weeks</span>
+
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-5 leading-tight tracking-tight text-balance">
+              Add login to your app
+              <span className="block text-muted-foreground">in minutes, not weeks</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-              Production-ready authentication with multi-tenant support. 
-              Focus on building your product while we handle user management, security, and compliance.
+
+            <p className="text-base lg:text-lg text-muted-foreground mb-8 leading-relaxed max-w-lg">
+              We handle user sign up, sign in, and security — so you can focus on building your app.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-              <Link 
-                to="/register" 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all flex items-center justify-center space-x-2 shadow-lg"
+
+            <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <a
+                href="/register"
+                className="bg-foreground hover:bg-foreground/90 text-background px-6 py-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
               >
-                <span>Start for Free</span>
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <button className="border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-xl text-lg font-semibold transition-all flex items-center justify-center space-x-2">
-                <Play className="w-5 h-5" />
+                <span>Start Building</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <button className="border border-border hover:border-foreground/20 text-foreground px-6 py-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 bg-background">
+                <Play className="w-4 h-4" />
                 <span>Watch Demo</span>
               </button>
             </div>
-            <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
-              <div className="flex items-center space-x-2">
-                <Check className="w-4 h-4 text-green-500" />
+
+            <div className="flex flex-wrap items-center gap-5 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-emerald-500" />
                 <span>Free forever</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Check className="w-4 h-4 text-green-500" />
-                <span>No credit card required</span>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-emerald-500" />
+                <span>No credit card</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Check className="w-4 h-4 text-green-500" />
-                <span>Setup in 5 minutes</span>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-emerald-500" />
+                <span>5 min setup</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side - Dashboard Preview */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/5 rounded-3xl blur-3xl -z-10"></div>
+
+            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-2xl">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                </div>
+                <div className="flex-1 mx-4">
+                  <div className="bg-background border border-border rounded-md px-3 py-1.5 text-xs text-muted-foreground font-mono max-w-xs mx-auto text-center">
+                    Dashboard - Authrix
+                  </div>
+                </div>
+              </div>
+
+              {/* Static dashboard image */}
+              <div className="min-h-[320px] lg:min-h-[380px] bg-muted/20">
+                <img src="/public/dashboard.png" alt="Authrix Dashboard Preview" className="w-full h-auto object-cover" />
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      {/* Features Section */}
-      <section id="features" className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Everything you need to authenticate users</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Enterprise-grade features that scale from startup to enterprise
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Lock className="w-8 h-8" />,
-                title: "Complete Auth Flow",
-                description: "Registration, login, password reset, email verification, and multi-factor authentication"
-              },
-              {
-                icon: <Users className="w-8 h-8" />,
-                title: "Multi-Tenant Architecture",
-                description: "Isolate users by application with API keys. Perfect for SaaS and B2B platforms"
-              },
-              {
-                icon: <Zap className="w-8 h-8" />,
-                title: "Lightning Fast Performance",
-                description: "Built on modern infrastructure with global CDN and 99.9% uptime SLA"
-              },
-              {
-                icon: <Shield className="w-8 h-8" />,
-                title: "Enterprise Security",
-                description: "SOC 2 compliant with JWT tokens, rate limiting, and advanced threat protection"
-              },
-              {
-                icon: <Code className="w-8 h-8" />,
-                title: "Developer Experience",
-                description: "React SDK with TypeScript, comprehensive docs, and webhook support"
-              },
-              {
-                icon: <Smartphone className="w-8 h-8" />,
-                title: "Session Management",
-                description: "Multi-device support, selective logout, device tracking, and session analytics"
-              }
-            ].map((feature, index) => (
-              <div key={index} className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all border border-gray-100">
-                <div className="text-blue-600 mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
-          </div>
+// Stats Section
+
+
+// Features Section
+function FeaturesSection() {
+  const features = [
+    {
+      icon: Lock,
+      title: "Full Login System",
+      description: "Sign up, sign in, forgot password, email check, and two-factor auth — all ready to use.",
+    },
+    {
+      icon: Users,
+      title: "Multiple Apps Support",
+      description: "Keep users separate for each app with their own API keys. Great for SaaS products.",
+    },
+    {
+      icon: Zap,
+      title: "Super Fast",
+      description: "Works from servers around the world. Your users get quick responses everywhere.",
+    },
+    {
+      icon: Shield,
+      title: "Bank-Level Security",
+      description: "We protect user data with secure tokens, block attacks, and follow strict security rules.",
+    },
+    {
+      icon: Code,
+      title: "Easy to Use",
+      description: "Simple React tools, clear guides, and automatic updates when users log in or out.",
+    },
+    {
+      icon: Smartphone,
+      title: "Works on All Devices",
+      description: "Users can log in from phone, tablet, or computer. You can see all their sessions.",
+    },
+  ]
+
+  return (
+    <section id="features" className="py-24 bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <p className="text-xs font-medium text-primary uppercase tracking-wider mb-3">Features</p>
+          <h2 className="text-3xl md:text-4xl font-semibold text-foreground mb-4 tracking-tight">
+            Everything you need for user login
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Powerful tools that grow with your app — from small projects to big companies
+          </p>
         </div>
-      </section>
 
-      {/* How it Works */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Get started in minutes</h2>
-            <p className="text-xl text-gray-600">Three simple steps to production-ready authentication</p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-12">
-            {[
-              {
-                step: "1",
-                title: "Create Your Account",
-                description: "Sign up for free and verify your email to access the dashboard",
-                icon: <Users className="w-6 h-6" />
-              },
-              {
-                step: "2", 
-                title: "Configure Your App",
-                description: "Create your application and get API keys with custom settings",
-                icon: <Code className="w-6 h-6" />
-              },
-              {
-                step: "3",
-                title: "Integrate & Deploy",
-                description: "Install our SDK and start authenticating users in production",
-                icon: <Zap className="w-6 h-6" />
-              }
-            ].map((item, index) => (
-              <div key={index} className="text-center relative">
-                <div className="bg-blue-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  {item.icon}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, index) => {
+            const IconComponent = feature.icon
+            return (
+              <div
+                key={index}
+                className="group bg-card border border-border rounded-xl p-6 hover:border-foreground/20 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+                  <IconComponent className="w-5 h-5 text-foreground" />
                 </div>
-                <div className="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-4 text-sm font-bold">
-                  {item.step}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{item.description}</p>
-                {index < 2 && (
-                  <ChevronRight className="hidden md:block absolute top-8 -right-6 w-6 h-6 text-gray-300" />
-                )}
+                <h3 className="text-base font-medium text-foreground mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
-            ))}
-          </div>
+            )
+          })}
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      {/* Code Example */}
-      <section className="py-24 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">Simple. Powerful. Ready.</h2>
-            <p className="text-xl text-gray-300">Add authentication with just a few lines of code</p>
-          </div>
-          
-          <div className="bg-gray-800 rounded-2xl p-8 shadow-2xl max-w-4xl mx-auto">
-            <div className="flex items-center mb-6">
-              <div className="flex space-x-2">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+// How It Works Section
+function HowItWorks() {
+  const steps = [
+    {
+      step: "01",
+      title: "Create Account",
+      description: "Sign up for free and confirm your email. It takes less than a minute.",
+      icon: Users,
+    },
+    {
+      step: "02",
+      title: "Set Up Your App",
+      description: "Add your app details and get your secret keys from the dashboard.",
+      icon: Code,
+    },
+    {
+      step: "03",
+      title: "Add to Your Code",
+      description: "Copy our code into your app and start letting users log in right away.",
+      icon: Zap,
+    },
+  ]
+
+  return (
+    <section id="how-it-works" className="py-24 bg-muted/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <p className="text-xs font-medium text-primary uppercase tracking-wider mb-3">How it Works</p>
+          <h2 className="text-3xl md:text-4xl font-semibold text-foreground mb-4 tracking-tight">
+            Get started in 3 easy steps
+          </h2>
+          <p className="text-muted-foreground">From zero to working login in just a few minutes</p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {steps.map((item, index) => {
+            const IconComponent = item.icon
+            return (
+              <div key={index} className="relative">
+                <div className="bg-card border border-border rounded-xl p-8 h-full">
+                  <div className="text-xs font-mono text-muted-foreground mb-4">{item.step}</div>
+                  <div className="w-12 h-12 bg-foreground rounded-xl flex items-center justify-center mb-5">
+                    <IconComponent className="w-6 h-6 text-background" />
+                  </div>
+                  <h3 className="text-lg font-medium text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                </div>
+                {index < 2 && <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-px bg-border"></div>}
               </div>
-              <span className="ml-4 text-gray-400 text-sm font-mono">App.jsx</span>
-            </div>
-            <pre className="text-green-400 text-sm leading-relaxed overflow-x-auto font-mono">
-{`import { useAuth } from 'authrix-sdk';
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Code Example Section
+function CodeExample() {
+  const codeString = `import { useAuth } from 'authrix-sdk';
 
 function App() {
   const { login, user, loading } = useAuth();
   
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Spinner />;
   
-  return (
-    <div>
-      {user ? (
-        <div>
-          <h1>Welcome, {user.username}!</h1>
-          <button onClick={logout}>Logout</button>
-        </div>
-      ) : (
-        <button onClick={() => login({ 
-          email: 'user@example.com', 
-          password: 'password' 
-        })}>
-          Login
-        </button>
-      )}
-    </div>
+  return user ? (
+    <Dashboard user={user} />
+  ) : (
+    <LoginButton onClick={login} />
   );
-}`}
+}`
+
+  return (
+    <section className="py-24 bg-foreground">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="text-xs font-medium text-background/60 uppercase tracking-wider mb-3">For Developers</p>
+            <h2 className="text-3xl md:text-4xl font-semibold text-background mb-6 tracking-tight">
+              Simple code.
+              <span className="block text-background/60">Big results.</span>
+            </h2>
+            <p className="text-background/70 mb-8 leading-relaxed">
+              Add login to your app with just a few lines of code. We handle the hard stuff — you build your product.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 text-sm text-background/60">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                Works with TypeScript
+              </div>
+              <div className="flex items-center gap-2 text-sm text-background/60">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                Easy React hooks
+              </div>
+              <div className="flex items-center gap-2 text-sm text-background/60">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                Auto login refresh
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-background/5 backdrop-blur rounded-xl border border-background/10 overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-background/10">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-400/80"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-green-400/80"></div>
+              </div>
+              <span className="text-xs text-background/50 font-mono ml-2">App.jsx</span>
+            </div>
+            <pre className="p-6 text-sm leading-relaxed overflow-x-auto font-mono">
+              <code className="text-emerald-400">{codeString}</code>
             </pre>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-blue-600 to-indigo-600">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-white mb-6">Ready to ship faster?</h2>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-            Join thousands of developers who chose Authrix to handle authentication 
-            so they can focus on building amazing products.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link 
-              to="/register" 
-              className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-4 rounded-xl text-lg font-semibold transition-all flex items-center justify-center space-x-2 shadow-lg"
-            >
-              <span>Start Building Today</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <button className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 rounded-xl text-lg font-semibold transition-all flex items-center justify-center space-x-2">
-              <Github className="w-5 h-5" />
-              <a href='https://github.com/icho08/Authsystem'>View on GitHub</a>
-            </button>
+// CTA Section
+function CTASection() {
+  return (
+    <section className="py-24 bg-background">
+      <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl md:text-4xl font-semibold text-foreground mb-4 tracking-tight">
+          Ready to get started?
+        </h2>
+        <p className="text-muted-foreground mb-10 max-w-xl mx-auto">
+          Join thousands of developers who use Authrix for login. It's free and takes just 5 minutes.
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <a
+            href="/register"
+            className="bg-foreground hover:bg-foreground/90 text-background px-6 py-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+          >
+            <span>Start Free Today</span>
+            <ArrowRight className="w-4 h-4" />
+          </a>
+          <a
+            href="https://github.com/icho08/Authsystem"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border border-border hover:border-foreground/20 text-foreground px-6 py-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 bg-background"
+          >
+            <Github className="w-4 h-4" />
+            <span>View on GitHub</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Footer
+function Footer() {
+  return (
+    <footer className="border-t border-border py-12 bg-muted/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
+              <Shield className="w-4 h-4 text-background" />
+            </div>
+            <span className="text-sm font-medium text-foreground">Authrix</span>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+            <a href="/docs" className="hover:text-foreground transition-colors">
+              Docs
+            </a>
+            <a href="/pricing" className="hover:text-foreground transition-colors">
+              Pricing
+            </a>
+            <a href="/blogs" className="hover:text-foreground transition-colors">
+              Blog
+            </a>
+            <a href="/support" className="hover:text-foreground transition-colors">
+              Support
+            </a>
+            <a href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy
+            </a>
+            <a href="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </a>
+          </div>
+
+          <div className="text-xs text-muted-foreground">
+            &copy; {new Date().getFullYear()} Authrix. All rights reserved.
           </div>
         </div>
-      </section>
+      </div>
+    </footer>
+  )
+}
 
-      
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <Header />
+      <main>
+        <HeroWithDashboard />
+        {/* <StatsSection /> */}
+        <FeaturesSection />
+        <HowItWorks />
+        <CodeExample />
+        <CTASection />
+      </main>
+      <Footer />
     </div>
   )
 }

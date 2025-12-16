@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
-
+import { Shield } from 'lucide-react'
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1) // 1: email, 2: code + password
   const [formData, setFormData] = useState({
@@ -77,9 +77,9 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col justify-center py-12 px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link to="/" className="flex justify-center items-center space-x-2 mb-8">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold">A</span>
-          </div>
+          <div className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center">
+              <Shield className="w-5 h-5 text-background" />
+            </div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Authrix</h1>
         </Link>
         
