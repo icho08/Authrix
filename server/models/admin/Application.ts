@@ -148,3 +148,40 @@ export const deleteApp = async(appId : string , userId : string)=>{
     return {error : "Failed to delete app"}
   }
 }
+
+export const getApplicationUsers = async (userId: string, appId: string) => { 
+  try { 
+   const app = await prisma.application.findFirst({ 
+      where : { 
+        id : appId , 
+        userId : userId
+      },
+      select : { 
+        id : true
+      }
+    });
+    if(!app){
+      return {error : "App not found or unauthorized"}
+    }
+    
+    const users = await prisma.user.findMany({
+      where: {
+        applicationId: app.id
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+      
+    return users;
+
+  } catch (err: any) {
+    logger.error(err);
+    return { error: "Failed to fetch app users" };
+  }
+}

@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import { createApplication, deleteApp, getUserApplication, updateApplicationSettings } from '../../models/admin/Application';
+import { createApplication, deleteApp, getApplicationUsers, getUserApplication, updateApplicationSettings } from '../../models/admin/Application';
 import { logger } from '../../config/logger';
+import { refreshToken } from '../auth/userController';
+import prisma from '../../config/prisma';
 
 export const createApp = async (req: Request, res: Response) => {  
  try {  
@@ -95,3 +97,70 @@ export const DeleteApp = async (req : Request , res : Response) => {
   }catch(err  : any ){ 
     logger.error(err);
   }}
+
+  export const getAppUsers = async (req: Request, res: Response) => {
+    try { 
+      const { appId } = req.body;
+      const user = req.user; 
+      if (!user) {
+        return res.status(401).json({ error: "Unauthorized" });
+      } 
+      if (!appId) {
+        return res.status(400).json({ error: "appId is required" });
+      }
+      
+      const result = await getApplicationUsers(user.userId, appId);
+      
+      if (!result || 'error' in result) {
+        return res.status(400).json({ error: result.error || "something went wrong" });
+      }
+      res.status(200).json(result);
+    } catch (err: any) {
+      logger.error(err);
+      return res.status(500).json({ error: "something went wrong while fetching app users" });
+    }
+  }
+
+export const getUserSessions = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.body;
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    if (!userId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+
+    const sessions = await prisma.session.findMany({
+      where: {
+        userId: userId,
+        user: {
+          application: {
+            userId: user.userId
+          }
+        }
+      },
+      select: {
+        id: true,
+        deviceName: true,
+        browser: true,
+        os: true,
+        deviceType: true,
+        location: true,
+        ipAddress: true,
+        isActive: true,
+        createdAt: true,
+        lastUsedAt: true
+      },
+      orderBy: {
+        lastUsedAt: 'desc'
+      }
+    });
+
+    res.status(200).json(sessions);
+  } catch (err: any) {
+    logger.error(err);
+    return res.status(500).json({ error: "Failed to fetch user sessions" });
+  }
+}
