@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "bun --watch index.ts",
+    "dev:local": "bun run index.ts",
     "seed": "bun run prisma/seed.ts",
     "vercel-build": "prisma generate && tsc"
   },
