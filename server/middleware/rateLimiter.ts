@@ -9,6 +9,7 @@ export const generalLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === 'production',
 });
 
 export const authLimiter = rateLimit({
@@ -19,6 +20,7 @@ export const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === 'production',
 });
 
 export const loginLimiter = rateLimit({
@@ -29,6 +31,7 @@ export const loginLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === 'production',
 });
 
 export const createAppLimiter = rateLimit({ 
@@ -39,4 +42,5 @@ export const createAppLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  trustProxy: process.env.NODE_ENV === 'production',
 })
