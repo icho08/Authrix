@@ -1,5 +1,12 @@
 import rateLimit from 'express-rate-limit';
 
+const getClientIP = (req: any) => {
+  if (process.env.NODE_ENV === 'production') {
+    return req.ip || req.connection.remoteAddress;
+  }
+  return req.connection.remoteAddress;
+};
+
 // General API rate limit
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
@@ -9,7 +16,7 @@ export const generalLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: process.env.NODE_ENV === 'production',
+  keyGenerator: (req) => getClientIP(req),
 });
 
 export const authLimiter = rateLimit({
@@ -20,7 +27,7 @@ export const authLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: process.env.NODE_ENV === 'production',
+  keyGenerator: (req) => getClientIP(req),
 });
 
 export const loginLimiter = rateLimit({
@@ -31,7 +38,7 @@ export const loginLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: process.env.NODE_ENV === 'production',
+  keyGenerator: (req) => getClientIP(req),
 });
 
 export const createAppLimiter = rateLimit({ 
@@ -42,5 +49,5 @@ export const createAppLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: process.env.NODE_ENV === 'production',
+  keyGenerator: (req) => getClientIP(req),
 })
