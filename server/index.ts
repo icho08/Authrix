@@ -12,7 +12,7 @@ import { requestId } from "./middleware/requestId";
 const app = express();
 dotenv.config(); 
 
-app.set('trust proxy', false);
+app.set('trust proxy', process.env.NODE_ENV === 'production');
 
 app.use(cors({
   origin: (origin, callback) => {
