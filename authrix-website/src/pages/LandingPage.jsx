@@ -1,8 +1,10 @@
 "use client"
-import { Shield, ArrowRight, Play, Check, Lock, Users, Zap, Code, Smartphone, Github } from "lucide-react"
+import { Shield, ArrowRight, Play, Check, Lock, Users, Zap, Code, Smartphone, Github, Moon, Sun } from "lucide-react"
+import { useTheme } from "../contexts/ThemeContext"
 
 // Header Component
 export function Header() {
+  const { isDark, toggleTheme } = useTheme()
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -30,6 +32,12 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg border border-border hover:bg-muted transition-colors"
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <a
               href="/login"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"

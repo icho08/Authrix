@@ -5,6 +5,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import AuthRedirect from './components/AuthRedirect'
 import DashboardLayout from './components/DashboardLayout'
+import DocsLayout from './components/DocsLayout'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -16,7 +17,12 @@ import Overview from './pages/dashboard/Overview'
 import Users from './pages/dashboard/Users'
 import Integration from './pages/dashboard/Integration'
 import Settings from './pages/dashboard/Settings'
-import { Docs } from './pages/Docs'
+import GettingStarted from './pages/docs/GettingStarted'
+import Installation from './pages/docs/Installation'
+import AuthClient from './pages/docs/AuthClient'
+import ReactHooks from './pages/docs/ReactHooks'
+import ApiMethods from './pages/docs/ApiMethods'
+import TypeScript from './pages/docs/TypeScript'
 
 function App() {
   return (
@@ -28,7 +34,8 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/pricing" element={<Pricing />} />
-            <Route path ="/docs" element={<Docs />} />
+            <Route path="/docs" element={<DocsLayout />} />
+            <Route path="/docs/:id" element={<DocsLayout />} />
             <Route path="/login" element={
               <AuthRedirect>
                 <LoginPage />

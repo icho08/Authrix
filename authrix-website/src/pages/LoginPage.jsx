@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
-import { Shield } from 'lucide-react'
+import { Image, Shield } from 'lucide-react'
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: '',
@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link to="/" className="flex justify-center items-center space-x-2 mb-8">
  <div className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-background" />
+        <image src="/logo.png" alt="Authrix Logo" className="w-6 h-6"/>
             </div>         
           <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Authrix</h1>
         </Link>
