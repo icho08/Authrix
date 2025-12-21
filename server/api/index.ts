@@ -14,18 +14,34 @@ dotenv.config();
 
 app.set('trust proxy', true);
 
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174", 
-    "http://localhost:3000", 
-    "https://authrix.chhabi.xyz", 
-    "https://api.authrix.chhabi.xyz"
-  ],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    
+    if (origin.match(/^http:\/\/localhost:\d+$/)) {
+      return callback(null, true);
+    }
+    
+    const allowedDomains = [
+      "https://authrix.chhabi.xyz",
+      "https://api.authrix.chhabi.xyz"
+    ];
+    
+    if (allowedDomains.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    if (origin.startsWith('https://')) {
+      return callback(null, true);
+    }
+   callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-API-Key", "X-Requested-With", "X-Refresh-Token"]
 }));
+
 
 app.use(requestId);
 app.use(generalLimiter);

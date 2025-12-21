@@ -31,14 +31,16 @@ const consoleFormat = winston.format.combine(
   })
 );
 
-const winstonLogger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: logFormat,
-  transports: [
-    new winston.transports.Console({
-      format: consoleFormat
-    }),
-    
+// Create transports array - only console for serverless environments
+const transports: winston.transport[] = [
+  new winston.transports.Console({
+    format: consoleFormat
+  })
+];
+
+// Only add file transports if not in serverless environment (Vercel)
+if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  transports.push(
     new DailyRotateFile({
       filename: 'logs/app-%DATE%.log',
       datePattern: 'YYYY-MM-DD',
@@ -56,7 +58,13 @@ const winstonLogger = winston.createLogger({
       maxFiles: '30d',
       format: logFormat
     })
-  ]
+  );
+}
+
+const winstonLogger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: logFormat,
+  transports
 });
 
 export const logger = {

@@ -1,12 +1,19 @@
-import { nanoid } from "nanoid";
 import crypto from "crypto";
 import { logger } from "../../config/logger";
 import prisma from "../../config/prisma";
+
+const getNanoid = async () => {
+  const { nanoid } = await import("nanoid");
+  return nanoid;
+};
+
 export const createApplication = async (name : string , id : string) => {
   try {
     if (!name) {
       return { error: "name is required" };
     }
+    
+    const nanoid = await getNanoid();
 
     // Only allow one application per user
     const existing = await prisma.application.findFirst({
