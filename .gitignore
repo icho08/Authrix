@@ -1,6 +1,8 @@
-docs/
-
+test-docs/
 website_test/
 pg
 
 temp*
+latest
+
+.vscode 
