@@ -3,6 +3,20 @@ import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
 import { Image, Shield } from 'lucide-react'
+
+// Store the last SDK error for better error handling
+let lastSDKError = null;
+
+// Override console.error to capture SDK errors
+const originalConsoleError = console.error;
+console.error = function(...args) {
+  // Check if this is an SDK error log
+  if (args[0] === '[AuthrixSDK] Request failed' && args[1] && args[1].error) {
+    lastSDKError = args[1].error;
+  }
+  return originalConsoleError.apply(console, args);
+};
+
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: '',
@@ -33,7 +47,34 @@ export default function LoginPage() {
       toast.success('Welcome back!')
       navigate('/dashboard')
     } catch (err) {
-      const errorMessage = err.message || 'Login failed. Please check your credentials.'
+      console.error('Login error:', err)
+      console.error('Error structure:', JSON.stringify(err, Object.getOwnPropertyNames(err), 2))
+      
+      // Extract error message - first try the captured SDK error
+      let errorMessage = 'Login failed. Please check your credentials.'
+      
+      if (lastSDKError && lastSDKError.message) {
+        errorMessage = lastSDKError.message;
+        lastSDKError = null; // Clear after use
+      } else if (err.cause && err.cause.error && err.cause.error.message) {
+        errorMessage = err.cause.error.message
+      } else if (err.error && err.error.message) {
+        errorMessage = err.error.message
+      } else if (err.response && err.response.error && err.response.error.message) {
+        errorMessage = err.response.error.message
+      } else if (err.message && !err.message.includes('[object Object]')) {
+        errorMessage = err.message
+      } else {
+        // Fallback based on HTTP status
+        if (err.message && err.message.includes('400')) {
+          errorMessage = 'Invalid email or password. Please check your credentials.'
+        } else if (err.message && err.message.includes('401')) {
+          errorMessage = 'Invalid email or password'
+        } else if (err.message && err.message.includes('500')) {
+          errorMessage = 'Server error. Please try again later'
+        }
+      }
+      
       setError(errorMessage)
       
       // Show specific toast for email verification
@@ -52,9 +93,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col justify-center py-12 px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link to="/" className="flex justify-center items-center space-x-2 mb-8">
- <div className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center">
-        <image src="/logo.png" alt="Authrix Logo" className="w-6 h-6"/>
-            </div>         
+          <div className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center">
+            <Shield className="w-5 h-5 text-background" />
+          </div>         
           <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Authrix</h1>
         </Link>
         
@@ -90,7 +131,7 @@ export default function LoginPage() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                 placeholder="Enter your email"
               />
             </div>
@@ -107,7 +148,7 @@ export default function LoginPage() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                 placeholder="Enter your password"
               />
             </div>

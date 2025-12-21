@@ -58,8 +58,35 @@ export default function RegisterPage() {
         navigate('/login')
       }
     } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.')
-      toast.error(err.message || 'Registration failed')
+      console.error('Registration error:', err)
+      
+      // Extract error message from different error formats
+      let errorMessage = 'Registration failed. Please try again.'
+      
+      if (err.message) {
+        let message = err.message
+        
+        // If message contains [object Object], try to parse it
+        if (message.includes('[object Object]')) {
+          // Try to extract from the original error
+          if (err.response && err.response.data && err.response.data.error) {
+            errorMessage = err.response.data.error.message || err.response.data.error
+          } else if (err.error) {
+            errorMessage = typeof err.error === 'string' ? err.error : err.error.message || 'Registration failed'
+          }
+        } else if (message.includes('HTTP 400')) {
+          errorMessage = 'Please check your input and try again'
+        } else if (message.includes('HTTP 409')) {
+          errorMessage = 'Email already exists. Please use a different email'
+        } else if (message.includes('HTTP 500')) {
+          errorMessage = 'Server error. Please try again later'
+        } else {
+          errorMessage = message
+        }
+      }
+      
+      setError(errorMessage)
+      toast.error(errorMessage)
     }
   }
 
@@ -105,7 +132,7 @@ export default function RegisterPage() {
                 required
                 value={formData.username}
                 onChange={handleChange}
-                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                 placeholder="Choose a username"
               />
             </div>
@@ -122,7 +149,7 @@ export default function RegisterPage() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                 placeholder="Enter your email"
               />
             </div>
@@ -139,7 +166,7 @@ export default function RegisterPage() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                 placeholder="Create a password"
               />
             </div>
@@ -156,7 +183,7 @@ export default function RegisterPage() {
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white/50"
+                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
                 placeholder="Confirm your password"
               />
             </div>
