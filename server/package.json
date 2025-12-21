@@ -9,7 +9,12 @@
     "dev": "bun --watch index.ts",
     "dev:local": "bun run index.ts",
     "seed": "bun run prisma/seed.ts",
-    "vercel-build": "prisma generate && tsc"
+    "vercel-build": "prisma generate && tsc",
+    "npm:build": "npm run prisma:generate && npm run compile",
+    "npm:start": "node dist /index.js",
+    "npm:dev": "ts-node --esm index.ts",
+    "compile": "tsc",
+    "prisma:generate": "prisma generate"
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
