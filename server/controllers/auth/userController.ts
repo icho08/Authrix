@@ -171,10 +171,29 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
     
     if (!token || typeof token !== 'string') {
       return res.status(400).send(`
-        <html><body>
-          <h2>Invalid verification link</h2>
-          <p>The verification link is invalid or missing.</p>
-        </body></html>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Invalid Verification Link</title>
+          <style>
+            body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+            .container { max-width: 500px; background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+            .icon { width: 64px; height: 64px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+            h1 { color: #1f2937; margin: 0 0 16px 0; font-size: 24px; font-weight: 600; }
+            p { color: #6b7280; margin: 0; font-size: 16px; line-height: 1.5; }
+            .btn { display: inline-block; background: #ef4444; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 500; margin-top: 24px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="icon">❌</div>
+            <h1>Invalid Verification Link</h1>
+            <p>The verification link is invalid or missing. Please check your email for the correct link or request a new verification email.</p>
+          </div>
+        </body>
+        </html>
       `);
     }
     
@@ -182,10 +201,29 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
     
     if (!decoded || decoded.type !== 'email_verification') {
       return res.status(400).send(`
-        <html><body>
-          <h2>Invalid Token Type</h2>
-          <p>This token is not for email verification.</p>
-        </body></html>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Invalid Token</title>
+          <style>
+            body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+            .container { max-width: 500px; background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+            .icon { width: 64px; height: 64px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+            h1 { color: #1f2937; margin: 0 0 16px 0; font-size: 24px; font-weight: 600; }
+            p { color: #6b7280; margin: 0; font-size: 16px; line-height: 1.5; }
+            .btn { display: inline-block; background: #ef4444; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 500; margin-top: 24px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="icon">⚠️</div>
+            <h1>Invalid Token Type</h1>
+            <p>This token is not for email verification. Please use the correct verification link from your email.</p>
+          </div>
+        </body>
+        </html>
       `);
     }
     
@@ -195,10 +233,29 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
     
     if (!application) {
       return res.status(400).send(`
-        <html><body>
-          <h2>Invalid Application</h2>
-          <p>The application associated with this token was not found.</p>
-        </body></html>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Application Not Found</title>
+          <style>
+            body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+            .container { max-width: 500px; background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+            .icon { width: 64px; height: 64px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+            h1 { color: #1f2937; margin: 0 0 16px 0; font-size: 24px; font-weight: 600; }
+            p { color: #6b7280; margin: 0; font-size: 16px; line-height: 1.5; }
+            .btn { display: inline-block; background: #ef4444; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 500; margin-top: 24px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="icon">🔍</div>
+            <h1>Application Not Found</h1>
+            <p>The application associated with this verification link was not found. Please contact support for assistance.</p>
+          </div>
+        </body>
+        </html>
       `);
     }
     
@@ -213,19 +270,59 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
     
     if (!user) {
       return res.status(400).send(`
-        <html><body>
-          <h2>User Not Found</h2>
-          <p>The user associated with this token was not found.</p>
-        </body></html>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>User Not Found</title>
+          <style>
+            body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+            .container { max-width: 500px; background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+            .icon { width: 64px; height: 64px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+            h1 { color: #1f2937; margin: 0 0 16px 0; font-size: 24px; font-weight: 600; }
+            p { color: #6b7280; margin: 0; font-size: 16px; line-height: 1.5; }
+            .btn { display: inline-block; background: #ef4444; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 500; margin-top: 24px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="icon">👤</div>
+            <h1>User Not Found</h1>
+            <p>The user account associated with this verification link was not found. Please try registering again or contact support.</p>
+            <a href="/" class="btn">Go to Homepage</a>
+          </div>
+        </body>
+        </html>
       `);
     }
     
     if (user.isVerified) {
       return res.send(`
-        <html><body>
-          <h2>Already Verified</h2>
-          <p>Your email is already verified. You can log in.</p>
-        </body></html>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Already Verified</title>
+          <style>
+            body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #10b981 0%, #059669 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+            .container { max-width: 500px; background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+            .icon { width: 64px; height: 64px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+            h1 { color: #1f2937; margin: 0 0 16px 0; font-size: 24px; font-weight: 600; }
+            p { color: #6b7280; margin: 0; font-size: 16px; line-height: 1.5; }
+            .btn { display: inline-block; background: #10b981; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 500; margin-top: 24px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="icon">✅</div>
+            <h1>Already Verified!</h1>
+            <p>Your email address is already verified. You can now log in to your account and start using our services.</p>
+            <a href="/login" class="btn">Go to Login</a>
+          </div>
+        </body>
+        </html>
       `);
     }
     
@@ -239,10 +336,45 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
     });
     
     res.send(`
-      <html><body>
-        <h2>Email Verified Successfully!</h2>
-        <p>Your account has been verified. You can now log in.</p>
-      </body></html>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Email Verified Successfully!</title>
+        <style>
+          body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #10b981 0%, #059669 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+          .container { max-width: 500px; background: white; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+          .icon { width: 80px; height: 80px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+          h1 { color: #1f2937; margin: 0 0 16px 0; font-size: 28px; font-weight: 600; }
+          p { color: #6b7280; margin: 0 0 24px 0; font-size: 16px; line-height: 1.5; }
+          .success-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin: 24px 0; }
+          .btn { display: inline-block; background: #10b981; color: white; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; margin-top: 8px; transition: all 0.2s; }
+          .btn:hover { background: #059669; transform: translateY(-1px); }
+          .confetti { animation: confetti 2s ease-in-out infinite; }
+          @keyframes confetti { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="icon confetti">🎉</div>
+          <h1>Email Verified Successfully!</h1>
+          <p>Congratulations! Your email address has been verified and your account is now active.</p>
+          
+          <div class="success-box">
+            <p style="margin: 0; color: #166534; font-size: 14px; font-weight: 500;">
+              ✅ Account activated • ✅ Email verified • ✅ Ready to use
+            </p>
+          </div>
+          
+          <p style="color: #374151; font-size: 14px; margin: 16px 0;">
+            You can now log in to your account and start using all the features available to you.
+          </p>
+          
+          <a href="/login" class="btn">Continue to Login</a>
+        </div>
+      </body>
+      </html>
     `);
   } catch (error : any) {
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
