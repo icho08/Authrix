@@ -2,12 +2,12 @@ import express from "express";
 import cors from "cors";  
 import dotenv from "dotenv"; 
 import bodyParser from "body-parser";
-import { logger } from "./config/logger";
-import admin from "./routes/admin/app";
-import auth from "./routes/auth/user";
-import { generalLimiter } from "./middleware/rateLimiter";
-import { errorHandler } from "./middleware/errorHandler";
-import { requestId } from "./middleware/requestId";
+import { logger } from "./config/logger.js";
+import admin from "./routes/admin/app.js";
+import auth from "./routes/auth/user.js";
+import { generalLimiter } from "./middleware/rateLimiter.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { requestId } from "./middleware/requestId.js";
 
 const app = express();
 dotenv.config(); 

@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { createUser, loginUser, resetUserPassword } from '../../models/auth/User';
-import { verifyRefreshToken, signAccessToken, refreshTokenRotation, revokeSession, revokeAllUserSessions, revokeOtherSessions } from '../../utils/jwt';
-import { logger } from '../../config/logger';
-import { ValidationError } from '../../utils/errors';
+import { createUser, loginUser, resetUserPassword } from '../../models/auth/User.js';
+import { verifyRefreshToken, signAccessToken, refreshTokenRotation, revokeSession, revokeAllUserSessions, revokeOtherSessions } from '../../utils/jwt.js';
+import { logger } from '../../config/logger.js';
+import { ValidationError } from '../../utils/errors.js';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import prisma from '../../config/prisma';
-import { SendPasswordResetEmail } from '../../utils/emailService';
+import prisma from '../../config/prisma.js';
+import { SendPasswordResetEmail } from '../../utils/emailService.js';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {

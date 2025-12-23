@@ -1,13 +1,13 @@
 import bcrypt from "bcryptjs" ; 
-import prisma from "../../config/prisma";
-import { logger } from "../../config/logger";
-import { doesUserExist } from "../../utils/userUtils";
-import { signAccessToken, signRefreshToken } from "../../utils/jwt";
+import prisma from "../../config/prisma.js";
+import { logger } from "../../config/logger.js";
+import { doesUserExist } from "../../utils/userUtils.js";
+import { signAccessToken, signRefreshToken } from "../../utils/jwt.js";
 import 'dotenv/config'; 
-import { IsEmail } from "../../utils/Email";
-import { ConflictError , ValidationError } from "../../utils/errors";
+import { IsEmail } from "../../utils/Email.js";
+import { ConflictError , ValidationError } from "../../utils/errors.js";
 import jwt from "jsonwebtoken";
-import { sendVerificationEmail, sendLoginAlert, SendWelcomeEmail } from "../../utils/emailService";
+import { sendVerificationEmail, sendLoginAlert, SendWelcomeEmail } from "../../utils/emailService.js";
 export const createUser = async (email: string, password: string, username: string, applicationId: string, isVerified: boolean, userAgent?: string, ipAddress?: string) => {
   if (await doesUserExist(email, applicationId)) {
     throw new ConflictError("User already exists");

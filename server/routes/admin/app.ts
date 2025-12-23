@@ -1,8 +1,8 @@
 import express from "express";
-import { createApp, DeleteApp, getAppUsers, getMyApp, updateAppSettings, getUserSessions } from "../../controllers/admin/appController";
-import { verifyApiKey } from "../../middleware/apiAuth";
-import { createAppLimiter } from "../../middleware/rateLimiter";
-import { authenticateUser } from "../../middleware/jwtAuth";
+import { createApp, DeleteApp, getAppUsers, getMyApp, updateAppSettings, getUserSessions } from "../../controllers/admin/appController.js";
+import { verifyApiKey } from "../../middleware/apiAuth.js";
+import { createAppLimiter } from "../../middleware/rateLimiter.js";
+import { authenticateUser } from "../../middleware/jwtAuth.js";
 
 const router = express.Router(); 
 

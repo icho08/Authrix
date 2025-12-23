@@ -1,8 +1,8 @@
 import express from "express";
-import { register, getProfile, refreshToken, login, logout, logoutAll, logoutOthers, getSessions, verifyEmail, requestPasswordReset, resetPassword} from "../../controllers/auth/userController";
-import { verifyApiKey } from "../../middleware/apiAuth";
-import { authenticateUser } from "../../middleware/jwtAuth";
-import { authLimiter, loginLimiter } from "../../middleware/rateLimiter";
+import { register, getProfile, refreshToken, login, logout, logoutAll, logoutOthers, getSessions, verifyEmail, requestPasswordReset, resetPassword} from "../../controllers/auth/userController.js";
+import { verifyApiKey } from "../../middleware/apiAuth.js";
+import { authenticateUser } from "../../middleware/jwtAuth.js";
+import { authLimiter, loginLimiter } from "../../middleware/rateLimiter.js";
 
 
 const router = express.Router();

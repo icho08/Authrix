@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { nanoid } from "nanoid";
-import { logger } from "../../config/logger";
-import prisma from "../../config/prisma";
+import { logger } from "../../config/logger.js";
+import prisma from "../../config/prisma.js";
 
 export const createApplication = async (name : string , id : string) => {
   try {

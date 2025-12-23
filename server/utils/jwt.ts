@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import prisma from '../config/prisma';
-import { getAppById } from './AppUtils';
-import { parseDeviceInfo } from './deviceInfo';
+import prisma from '../config/prisma.js';
+import { getAppById } from './AppUtils.js';
+import { parseDeviceInfo } from './deviceInfo.js';
 
 interface JWTPayload {
   userId: string;

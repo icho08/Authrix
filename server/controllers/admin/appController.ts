@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { createApplication, deleteApp, getApplicationUsers, getUserApplication, updateApplicationSettings } from '../../models/admin/Application';
-import { logger } from '../../config/logger';
-import { refreshToken } from '../auth/userController';
-import prisma from '../../config/prisma';
+import { createApplication, deleteApp, getApplicationUsers, getUserApplication, updateApplicationSettings } from '../../models/admin/Application.js';
+import { logger } from '../../config/logger.js';
+import { refreshToken } from '../auth/userController.js';
+import prisma from '../../config/prisma.js';
 
 export const createApp = async (req: Request, res: Response) => {  
  try {  
