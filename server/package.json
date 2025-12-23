@@ -1,5 +1,6 @@
 {
   "name": "tala-server",
+  "type": "module",
   "module": "index.ts",
   "private": true,
   "scripts": {
