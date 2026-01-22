@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { createUser, loginUser, resetUserPassword } from '../../models/auth/User.js';
+import { changeUserPassword, createUser, loginUser, resetUserPassword } from '../../models/auth/User.js';
 import { verifyRefreshToken, signAccessToken, refreshTokenRotation, revokeSession, revokeAllUserSessions, revokeOtherSessions } from '../../utils/jwt.js';
 import { logger } from '../../config/logger.js';
 import { ValidationError } from '../../utils/errors.js';
@@ -7,6 +7,8 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import prisma from '../../config/prisma.js';
 import { SendPasswordResetEmail } from '../../utils/emailService.js';
+import { json } from 'body-parser';
+import { validateHeaderName } from 'http';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -449,3 +451,24 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
+
+export const changePassword = async (req : Request , res:Response , next:NextFunction) =>{ 
+  try{
+    const {oldPassword , newPassword } = req.body; 
+    const applicationId = req.application?.id ; 
+    const userId = req.user?.userId;
+    
+    if(!oldPassword || !newPassword ){ 
+      throw new ValidationError("Old password and new password are required")
+    }
+    
+    if(!userId || !applicationId) {
+      throw new ValidationError("User authentication required")
+    }
+    
+    const result = await changeUserPassword(oldPassword , newPassword , userId , applicationId ); 
+    res.json(result);
+  }catch(err){ 
+    next(err);
+  }
+}

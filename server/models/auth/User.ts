@@ -8,6 +8,7 @@ import { IsEmail } from "../../utils/Email.js";
 import { ConflictError , ValidationError } from "../../utils/errors.js";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail, sendLoginAlert, SendWelcomeEmail } from "../../utils/emailService.js";
+
 export const createUser = async (email: string, password: string, username: string, applicationId: string, isVerified: boolean, userAgent?: string, ipAddress?: string) => {
   if (await doesUserExist(email, applicationId)) {
     throw new ConflictError("User already exists");
@@ -241,3 +242,35 @@ export const resetUserPassword = async (token: string, newPassword: string, appl
   
   return { message: "Password reset successfully" };
 };
+
+export const changeUserPassword = async (oldPassword: string, newPassword: string, userId: string, applicationId: string) => { 
+  const user = await prisma.user.findUnique({
+    where: { id: userId }
+  });
+  
+  if (!user) {
+    throw new ValidationError("User not found");
+  }
+
+  if (user.applicationId !== applicationId) {
+    throw new ValidationError("User not found in this application");
+  }
+
+  const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+  
+  if (!isPasswordValid) {
+    throw new ValidationError("Invalid old password");
+  }
+
+  const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10;
+  const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword
+    }
+  });
+  
+  return { message: "Password changed successfully" };
+}
