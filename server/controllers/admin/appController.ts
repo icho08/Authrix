@@ -14,7 +14,7 @@ export const createApp = async (req: Request, res: Response) => {
   if(!name) {
     return res.status(400).json({ error: "name is required" }); 
   }   
-  const app = await createApplication(name , user.userId); 
+  const app = await createApplication({ name, userId: user.userId }); 
   if(!app || app.error) {
     return res.status(500).json({ error:  app?.error || "something went wrong" });
   }
@@ -61,9 +61,13 @@ export const updateAppSettings = async(req : Request , res  : Response) => {
       return res.status(400).json({ error: "appId is required" });
     }
     
-    const result = await updateApplicationSettings( appId , user.userId, { 
-      name, 
-      requireEmailVerification 
+    const result = await updateApplicationSettings({
+      appId,
+      userId: user.userId,
+      settings: {
+        name,
+        requireEmailVerification
+      }
     });
     
     if (!result || 'error' in result) {
@@ -87,8 +91,7 @@ export const DeleteApp = async (req : Request , res : Response) => {
     if(!appId){ 
       return res.status(400).json({ error: "appId is required" });
     }
-    const result = await deleteApp
-    ( appId , user.userId);
+    const result = await deleteApp({ appId, userId: user.userId });
     
     if (!result || 'error' in result) {
       return res.status(400).json({ error: result.error || "something went wrong" });
@@ -109,7 +112,7 @@ export const DeleteApp = async (req : Request , res : Response) => {
         return res.status(400).json({ error: "appId is required" });
       }
       
-      const result = await getApplicationUsers(user.userId, appId);
+      const result = await getApplicationUsers({ userId: user.userId, appId });
       
       if (!result || 'error' in result) {
         return res.status(400).json({ error: result.error || "something went wrong" });

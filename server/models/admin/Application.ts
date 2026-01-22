@@ -2,8 +2,18 @@ import crypto from "crypto";
 import { nanoid } from "nanoid";
 import { logger } from "../../config/logger.js";
 import prisma from "../../config/prisma.js";
+import { 
+  CreateApplicationParams, 
+  UpdateApplicationParams, 
+  UpdateApplicationSettingsParams, 
+  DeleteApplicationParams, 
+  GetApplicationUsersParams,
+  ApplicationResponse 
+} from "./Application.types.js";
 
-export const createApplication = async (name : string , id : string) => {
+export const createApplication = async (params: CreateApplicationParams): Promise<ApplicationResponse> => {
+  const { name, userId } = params;
+  
   try {
     if (!name) {
       return { error: "name is required" };
@@ -11,7 +21,7 @@ export const createApplication = async (name : string , id : string) => {
 
     // Only allow one application per user
     const existing = await prisma.application.findFirst({
-      where: { userId: id }
+      where: { userId }
     });
 
     if (existing) {
@@ -21,15 +31,15 @@ export const createApplication = async (name : string , id : string) => {
     const apiKey = `ak_${nanoid()}`;
     const secretKey = crypto.randomBytes(48).toString("base64");
     const app = await prisma.application.create({
-      data: { name, apiKey, secretKey , userId : id },
+      data: { name, apiKey, secretKey, userId },
     });
     if (!app) {
       return { error: "something went wrong" };
     }
-    return { apiKey, secretKey, appId: app.id , name : app.name, requireEmailVerification: app.requireEmailVerification };
+    return { apiKey, secretKey, appId: app.id, name: app.name, requireEmailVerification: app.requireEmailVerification };
   } catch (err: any) {
     logger.error(err);
-    return {error : "Failed to create application"}
+    return { error: "Failed to create application" }
   }
 };
 
@@ -79,24 +89,21 @@ export const updateApplication = async (payload: {name : string , requireEmailVe
       return {error : "Failed to update application"}
   }}; 
 
-export const updateApplicationSettings = async (
- appId : string , 
-  userId: string, 
-  settings: { name?: string; requireEmailVerification?: boolean }
-) => {
-  try {
+export const updateApplicationSettings = async (params: UpdateApplicationSettingsParams) => {
+  const { appId, userId, settings } = params;
   
+  try {
     const app = await prisma.application.findFirst({
-      where: { id: appId,  userId : userId}
+      where: { id: appId, userId }
     });
-logger.info(app);
+    logger.info(app);
+
     if (!app) {
       return { error: "App not found or unauthorized" };
     }
 
-    
     const updatedApp = await prisma.application.update({
-      where: { id: appId , userId : userId },
+      where: { id: appId, userId },
       data: settings,
       select: { id: true, name: true, requireEmailVerification: true }
     });
@@ -108,20 +115,22 @@ logger.info(app);
   }
 };
 
-export const deleteApp = async(appId : string , userId : string)=>{ 
-  try { 
-    const app = await prisma.application.findFirst({ 
-      where : { 
-        id : appId , 
-        userId : userId
-      }, 
-      select : { 
-        id : true
+export const deleteApp = async (params: DeleteApplicationParams) => {
+  const { appId, userId } = params;
+  
+  try {
+    const app = await prisma.application.findFirst({
+      where: {
+        id: appId,
+        userId
+      },
+      select: {
+        id: true
       }
-    }); 
-    if(!app){ 
-      return {error : "App not found or unauthorized"} 
-    } 
+    });
+    if (!app) {
+      return { error: "App not found or unauthorized" }
+    }
 
     await prisma.session.deleteMany({
       where: {
@@ -137,32 +146,34 @@ export const deleteApp = async(appId : string , userId : string)=>{
       }
     });
 
-    await prisma.application.delete({ 
-      where : { 
-        id : app.id 
-      } 
-    }); 
+    await prisma.application.delete({
+      where: {
+        id: app.id
+      }
+    });
     
-    return {message : "App and all associated data deleted successfully"}
-  }catch(err:any){ 
-    logger.error(err); 
-    return {error : "Failed to delete app"}
+    return { message: "App and all associated data deleted successfully" }
+  } catch (err: any) {
+    logger.error(err);
+    return { error: "Failed to delete app" }
   }
 }
 
-export const getApplicationUsers = async (userId: string, appId: string) => { 
-  try { 
-   const app = await prisma.application.findFirst({ 
-      where : { 
-        id : appId , 
-        userId : userId
+export const getApplicationUsers = async (params: GetApplicationUsersParams) => {
+  const { userId, appId } = params;
+  
+  try {
+    const app = await prisma.application.findFirst({
+      where: {
+        id: appId,
+        userId
       },
-      select : { 
-        id : true
+      select: {
+        id: true
       }
     });
-    if(!app){
-      return {error : "App not found or unauthorized"}
+    if (!app) {
+      return { error: "App not found or unauthorized" }
     }
     
     const users = await prisma.user.findMany({

@@ -3,12 +3,9 @@ import { changeUserPassword, createUser, loginUser, resetUserPassword } from '..
 import { verifyRefreshToken, signAccessToken, refreshTokenRotation, revokeSession, revokeAllUserSessions, revokeOtherSessions } from '../../utils/jwt.js';
 import { logger } from '../../config/logger.js';
 import { ValidationError } from '../../utils/errors.js';
-import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import prisma from '../../config/prisma.js';
 import { SendPasswordResetEmail } from '../../utils/emailService.js';
-import { json } from 'body-parser';
-import { validateHeaderName } from 'http';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -22,7 +19,15 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       throw new ValidationError("Email, password, and username are required");
     }
     
-    const result = await createUser(email, password, username, applicationId, isVerified, userAgent, ipAddress);
+    const result = await createUser({
+      email,
+      password,
+      username,
+      applicationId,
+      isVerified,
+      userAgent,
+      ipAddress
+    });
     res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -40,7 +45,13 @@ export const login = async (req : Request , res : Response, next: NextFunction) 
       throw new ValidationError("Email and password are required");
     }
     
-    const result = await loginUser(email, password, applicationId, userAgent, ipAddress);
+    const result = await loginUser({
+      email,
+      password,
+      applicationId,
+      userAgent,
+      ipAddress
+    });
     res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -445,7 +456,11 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
       throw new ValidationError("Token and new password are required");
     }
     
-    const result = await resetUserPassword(token, newPassword, applicationId);
+    const result = await resetUserPassword({
+      token,
+      newPassword,
+      applicationId
+    });
     res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -469,7 +484,12 @@ export const changePassword = async (req : Request , res:Response , next:NextFun
       throw new ValidationError("User authentication required")
     }
     
-    const result = await changeUserPassword(oldPassword , newPassword , userId , applicationId ); 
+    const result = await changeUserPassword({
+      oldPassword,
+      newPassword,
+      userId,
+      applicationId
+    }); 
     if(result instanceof ValidationError){
       throw result;
     }

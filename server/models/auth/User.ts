@@ -8,8 +8,11 @@ import { IsEmail } from "../../utils/Email.js";
 import { ConflictError , ValidationError } from "../../utils/errors.js";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail, sendLoginAlert, SendWelcomeEmail } from "../../utils/emailService.js";
+import { CreateUserParams, LoginUserParams, ChangeUserPasswordParams, ResetUserPasswordParams } from "./User.types.js";
 
-export const createUser = async (email: string, password: string, username: string, applicationId: string, isVerified: boolean, userAgent?: string, ipAddress?: string) => {
+export const createUser = async (params: CreateUserParams) => {
+  const { email, password, username, applicationId, isVerified, userAgent, ipAddress } = params;
+  
   if (await doesUserExist(email, applicationId)) {
     throw new ConflictError("User already exists");
   }
@@ -111,7 +114,9 @@ export const createUser = async (email: string, password: string, username: stri
   };
 };
 
-export const loginUser = async (email: string, password: string, applicationId: string, userAgent?: string, ipAddress?: string) => {
+export const loginUser = async (params: LoginUserParams) => {
+  const { email, password, applicationId, userAgent, ipAddress } = params;
+  
   const user = await prisma.user.findUnique({
     where: { email_applicationId: { email, applicationId } },
     include: { application: true }
@@ -215,7 +220,9 @@ export const loginUser = async (email: string, password: string, applicationId: 
     refreshToken: await signRefreshToken(user.id, user.applicationId, userAgent, ipAddress)
   };
 };
-export const resetUserPassword = async (token: string, newPassword: string, applicationId: string) => {
+export const resetUserPassword = async (params: ResetUserPasswordParams) => {
+  const { token, newPassword, applicationId } = params;
+  
   const user = await prisma.user.findFirst({
     where: {
       resetToken: token,
@@ -243,7 +250,9 @@ export const resetUserPassword = async (token: string, newPassword: string, appl
   return { message: "Password reset successfully" };
 };
 
-export const changeUserPassword = async (oldPassword: string, newPassword: string, userId: string, applicationId: string) => { 
+export const changeUserPassword = async (params: ChangeUserPasswordParams) => {
+  const { oldPassword, newPassword, userId, applicationId } = params;
+  
   const user = await prisma.user.findUnique({
     where: { id: userId }
   });
