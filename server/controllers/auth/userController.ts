@@ -461,12 +461,19 @@ export const changePassword = async (req : Request , res:Response , next:NextFun
     if(!oldPassword || !newPassword ){ 
       throw new ValidationError("Old password and new password are required")
     }
+    if(oldPassword === newPassword){ 
+      throw new ValidationError("New password must be different from old password")
+    }
     
     if(!userId || !applicationId) {
       throw new ValidationError("User authentication required")
     }
     
     const result = await changeUserPassword(oldPassword , newPassword , userId , applicationId ); 
+    if(result instanceof ValidationError){
+      throw result;
+    }
+
     res.json(result);
   }catch(err){ 
     next(err);

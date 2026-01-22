@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs" ;
 import prisma from "../../config/prisma.js";
 import { logger } from "../../config/logger.js";
 import { doesUserExist } from "../../utils/userUtils.js";
-import { signAccessToken, signRefreshToken } from "../../utils/jwt.js";
+import { revokeAllUserSessions, signAccessToken, signRefreshToken } from "../../utils/jwt.js";
 import 'dotenv/config'; 
 import { IsEmail } from "../../utils/Email.js";
 import { ConflictError , ValidationError } from "../../utils/errors.js";
@@ -271,6 +271,8 @@ export const changeUserPassword = async (oldPassword: string, newPassword: strin
       password: hashedPassword
     }
   });
+await revokeAllUserSessions(userId);
   
   return { message: "Password changed successfully" };
 }
+
