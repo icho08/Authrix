@@ -20,6 +20,7 @@ import {
   Users,
   Code2,
   Settings,
+  User,
   Moon,
   Sun,
   LogOut,
@@ -35,7 +36,8 @@ const navigation = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { name: "Users", href: "/dashboard/users", icon: Users },
   { name: "Integration", href: "/dashboard/integration", icon: Code2 },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "App Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "Account", href: "/dashboard/account", icon: User },
 ]
 
 export default function DashboardLayout({ children }) {
@@ -175,8 +177,8 @@ export default function DashboardLayout({ children }) {
 
               {/* User Section */}
               <div className="p-3">
-                <div className={cn("flex items-center gap-3", sidebarCollapsed && "justify-center")}>
-                  {sidebarCollapsed ? (
+                {sidebarCollapsed ? (
+                  <div className="flex flex-col items-center gap-2">
                     <Tooltip delayDuration={0}>
                       <TooltipTrigger asChild>
                         <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-10 w-10">
@@ -185,34 +187,30 @@ export default function DashboardLayout({ children }) {
                       </TooltipTrigger>
                       <TooltipContent side="right">Toggle theme</TooltipContent>
                     </Tooltip>
-                  ) : (
-                    <>
-                      <Avatar className="h-9 w-9 border">
+                    <UserDropdown user={user} onLogout={handleLogout} />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <Avatar className="h-9 w-9 border shrink-0">
                         <AvatarImage src="/placeholder-user.jpg" />
                         <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
                           {user?.username?.[0] || user?.email?.[0] || "U"}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{user?.username || user?.email}</p>
                         <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
-                          {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={handleLogout}
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                        >
-                          <LogOut className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
+                        {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                      </Button>
+                      <UserDropdown user={user} onLogout={handleLogout} />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </aside>
@@ -324,9 +322,15 @@ function UserDropdown({ user, onLogout }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
+          <Link to="/dashboard/account">
+            <User className="mr-2 h-4 w-4" />
+            Account
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link to="/dashboard/settings">
             <Settings className="mr-2 h-4 w-4" />
-            Settings
+            App Settings
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

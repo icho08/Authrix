@@ -28,11 +28,11 @@ export default function ForgotPasswordPage() {
 
     if (!formData.email) {
       setError('Please enter your email address')
-      return
+      return ; 
     }
 
     try {
-      await requestPasswordReset(formData.email)
+     await requestPasswordReset(formData.email); 
       setStep(2)
       toast.success('Reset code sent! Check your email.', {
         duration: 5000,

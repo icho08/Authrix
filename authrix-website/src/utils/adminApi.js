@@ -55,7 +55,8 @@ export const adminApi = {
     body: JSON.stringify({ 
       appId, 
       name: settings.appName,
-      requireEmailVerification: settings.requireEmailVerification
+      requireEmailVerification: settings.requireEmailVerification,
+      allowedDomains: settings.allowedDomains
     })
   }),
 
@@ -72,5 +73,23 @@ export const adminApi = {
   getUserSessions: (userId) => apiRequest('/api/admin/apps/user-sessions', {
     method: 'POST',
     body: JSON.stringify({ userId })
-  })
+  }),
+
+  addDomain: (appId, domain) => apiRequest('/api/admin/apps/domains/add', {
+    method: 'POST',
+    body: JSON.stringify({ appId, domain })
+  }),
+
+  removeDomain: (appId, domain) => apiRequest('/api/admin/apps/domains/remove', {
+    method: 'POST',
+    body: JSON.stringify({ appId, domain })
+  }),
+
+  changePassword: (oldPassword, newPassword) => apiRequest('/api/auth/reset', {
+    method: 'POST',
+    body: JSON.stringify({ oldPassword, newPassword })
+  }),
+  deleteUserAccount: () => apiRequest('/api/auth/delete-account', {
+    method: 'POST'
+  })  
 }

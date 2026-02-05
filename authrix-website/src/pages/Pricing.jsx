@@ -1,5 +1,5 @@
-import { Shield, ArrowRight, Check, X } from "lucide-react"
-import { Header } from "./LandingPage"
+import { Shield, ArrowRight, Check, X } from "lucide-react";
+import Header from "../components/Header";
 // Pricing Card Component
 function PricingCard({ plan, price, apps, features, popular, buttonText }) {
   return (
@@ -19,7 +19,9 @@ function PricingCard({ plan, price, apps, features, popular, buttonText }) {
             <span className="text-4xl font-bold text-foreground">Free</span>
           ) : (
             <>
-              <span className="text-4xl font-bold text-foreground">${price}</span>
+              <span className="text-4xl font-bold text-foreground">
+                ${price}
+              </span>
               <span className="text-muted-foreground">/month</span>
             </>
           )}
@@ -37,7 +39,9 @@ function PricingCard({ plan, price, apps, features, popular, buttonText }) {
             ) : (
               <X className="w-5 h-5 text-muted-foreground/40 flex-shrink-0 mt-0.5" />
             )}
-            <span className={`text-sm ${feature.included ? "text-foreground" : "text-muted-foreground/60"}`}>
+            <span
+              className={`text-sm ${feature.included ? "text-foreground" : "text-muted-foreground/60"}`}
+            >
               {feature.text}
             </span>
           </li>
@@ -56,7 +60,7 @@ function PricingCard({ plan, price, apps, features, popular, buttonText }) {
         <ArrowRight className="w-4 h-4" />
       </a>
     </div>
-  )
+  );
 }
 
 // Footer
@@ -73,22 +77,32 @@ function Footer() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">
+            <a href="/docs" className="hover:text-foreground transition-colors">
               Docs
             </a>
-            <a href="/pricing" className="hover:text-foreground transition-colors">
+            <a
+              href="/pricing"
+              className="hover:text-foreground transition-colors"
+            >
               Pricing
             </a>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Blog
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
+
+            <a
+              href="/support"
+              className="hover:text-foreground transition-colors"
+            >
               Support
             </a>
-            <a href="/privacy" className="hover:text-foreground transition-colors">
+            <a
+              href="/privacy"
+              className="hover:text-foreground transition-colors"
+            >
               Privacy
             </a>
-            <a href="/terms" className="hover:text-foreground transition-colors">
+            <a
+              href="/terms"
+              className="hover:text-foreground transition-colors"
+            >
               Terms
             </a>
           </div>
@@ -99,7 +113,7 @@ function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
 
 export default function PricingPage() {
@@ -164,21 +178,24 @@ export default function PricingPage() {
         { text: "Advanced analytics", included: true },
       ],
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
+      <Header variant="default" breadcrumb="Pricing" />
       <main>
         {/* Hero Section */}
         <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
-            <p className="text-xs font-medium text-primary uppercase tracking-wider mb-3">Pricing</p>
+            <p className="text-xs font-medium text-primary uppercase tracking-wider mb-3">
+              Pricing
+            </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground mb-5 tracking-tight">
               Simple pricing for everyone
             </h1>
             <p className="text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Pick a plan that works for you. Start free and upgrade as you grow.
+              Pick a plan that works for you. Start free and upgrade as you
+              grow.
             </p>
           </div>
         </section>
@@ -197,31 +214,44 @@ export default function PricingPage() {
         {/* FAQ Section */}
         <section className="py-24 bg-muted/30 border-t border-border">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-semibold text-foreground mb-12 text-center">Common Questions</h2>
+            <h2 className="text-2xl font-semibold text-foreground mb-12 text-center">
+              Common Questions
+            </h2>
             <div className="space-y-6">
               <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="font-medium text-foreground mb-2">Can I switch plans later?</h3>
+                <h3 className="font-medium text-foreground mb-2">
+                  Can I switch plans later?
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Yes, you can upgrade or downgrade your plan anytime. Changes take effect right away.
+                  Yes, you can upgrade or downgrade your plan anytime. Changes
+                  take effect right away.
                 </p>
               </div>
               <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="font-medium text-foreground mb-2">What counts as an app?</h3>
+                <h3 className="font-medium text-foreground mb-2">
+                  What counts as an app?
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Each website or mobile app you add to Authrix counts as one app. Each app gets its own users and
-                  settings.
+                  Each website or mobile app you add to Authrix counts as one
+                  app. Each app gets its own users and settings.
                 </p>
               </div>
               <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="font-medium text-foreground mb-2">Is there a free trial?</h3>
+                <h3 className="font-medium text-foreground mb-2">
+                  Is there a free trial?
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  The Free plan is free forever. No credit card needed. Just sign up and start building.
+                  The Free plan is free forever. No credit card needed. Just
+                  sign up and start building.
                 </p>
               </div>
               <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="font-medium text-foreground mb-2">What if I need more than 20 apps?</h3>
+                <h3 className="font-medium text-foreground mb-2">
+                  What if I need more than 20 apps?
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  Contact us for a custom Enterprise plan. We can set up special pricing for larger teams.
+                  Contact us for a custom Enterprise plan. We can set up special
+                  pricing for larger teams.
                 </p>
               </div>
             </div>
@@ -231,7 +261,9 @@ export default function PricingPage() {
         {/* CTA Section */}
         <section className="py-24 bg-background">
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-semibold text-foreground mb-4 tracking-tight">Ready to get started?</h2>
+            <h2 className="text-3xl font-semibold text-foreground mb-4 tracking-tight">
+              Ready to get started?
+            </h2>
             <p className="text-muted-foreground mb-10 max-w-xl mx-auto">
               Start with our free plan. No credit card needed.
             </p>
@@ -241,11 +273,11 @@ export default function PricingPage() {
             >
               <span>Start Free Today</span>
               <ArrowRight className="w-4 h-4" />
-        </a>
+            </a>
           </div>
         </section>
       </main>
       <Footer />
     </div>
-  )
+  );
 }

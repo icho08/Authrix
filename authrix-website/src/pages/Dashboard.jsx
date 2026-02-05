@@ -6,7 +6,7 @@ import { useTheme } from '../contexts/ThemeContext'
 import { adminApi } from '../utils/adminApi'
 
 export default function Dashboard() {
-  const { user, logout, loading: authLoading, baseUrl } = useAuth()
+  const { user, logout, loading : authloading, baseUrl } = useAuth()
   const { isDark, toggleTheme } = useTheme()
   const [app, setApp] = useState(null)
   const [loading, setLoading] = useState(false)

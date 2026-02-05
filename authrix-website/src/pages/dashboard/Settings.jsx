@@ -24,6 +24,7 @@ import { SettingsIcon, User, Shield, Bell, Trash2, Save, Mail, Key, AlertTriangl
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
 import { adminApi } from '../../utils/adminApi'
+import DomainManagement from '../../components/DomainManagement'
 
 export default function Settings() {
   const { user } = useAuth()
@@ -125,7 +126,7 @@ export default function Settings() {
             </div>
             <div>
               <CardTitle>Application Settings</CardTitle>
-              <CardDescription>Configure your application preferences</CardDescription>
+              <CardDescription>Configure your application preferences and security</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -198,31 +199,11 @@ export default function Settings() {
         </CardFooter>
       </Card>
 
-      {/* Account Information - Coming Soon */}
-      <Card className="opacity-60">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-              <User className="h-5 w-5 text-blue-500" />
-            </div>
-            <div>
-              <CardTitle>Account Information</CardTitle>
-              <CardDescription>Your account and application details</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <Separator />
-        <CardContent className="pt-6">
-          <div className="text-center py-8">
-            <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">Coming Soon</h3>
-            <p className="text-muted-foreground">Account management features will be available soon</p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Domain Management */}
+      <DomainManagement app={app} onUpdate={setApp} />
 
       {/* Security Settings - Coming Soon */}
-      <Card className="opacity-60">
+      {/* <Card className="opacity-60">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
@@ -242,7 +223,9 @@ export default function Settings() {
             <p className="text-muted-foreground">Security features including password change will be available soon</p>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
+
+      {/* Domain Management */}
 
       {/* Danger Zone */}
       <Card className="border-destructive/50">

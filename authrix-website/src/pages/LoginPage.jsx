@@ -1,17 +1,17 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import toast from 'react-hot-toast'
-import { useAuth } from '../contexts/AuthContext'
-import { Image, Shield } from 'lucide-react'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuth } from "../contexts/AuthContext";
+import { Image, Shield, Eye, EyeOff } from "lucide-react";
 
 // Store the last SDK error for better error handling
 let lastSDKError = null;
 
 // Override console.error to capture SDK errors
 const originalConsoleError = console.error;
-console.error = function(...args) {
+console.error = function (...args) {
   // Check if this is an SDK error log
-  if (args[0] === '[AuthrixSDK] Request failed' && args[1] && args[1].error) {
+  if (args[0] === "[AuthrixSDK] Request failed" && args[1] && args[1].error) {
     lastSDKError = args[1].error;
   }
   return originalConsoleError.apply(console, args);
@@ -19,91 +19,113 @@ console.error = function(...args) {
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
-  const [error, setError] = useState('')
-  const { login, loading } = useAuth()
-  const navigate = useNavigate()
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const { login, loading } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError("");
 
     if (!formData.email || !formData.password) {
-      setError('Please fill in all fields')
-      return
+      setError("Please fill in all fields");
+      return;
     }
 
     try {
-      await login(formData)
-      toast.success('Welcome back!')
-      navigate('/dashboard')
+      await login(formData);
+      toast.success("Welcome back!");
+      navigate("/dashboard");
     } catch (err) {
-      console.error('Login error:', err)
-      console.error('Error structure:', JSON.stringify(err, Object.getOwnPropertyNames(err), 2))
-      
-      // Extract error message - first try the captured SDK error
-      let errorMessage = 'Login failed. Please check your credentials.'
-      
+      console.error("Login error:", err);
+      console.error(
+        "Error structure:",
+        JSON.stringify(err, Object.getOwnPropertyNames(err), 2),
+      );
+
+      let errorMessage = "Login failed. Please check your credentials.";
+
       if (lastSDKError && lastSDKError.message) {
         errorMessage = lastSDKError.message;
-        lastSDKError = null; // Clear after use
+        lastSDKError = null;
       } else if (err.cause && err.cause.error && err.cause.error.message) {
-        errorMessage = err.cause.error.message
+        errorMessage = err.cause.error.message;
       } else if (err.error && err.error.message) {
-        errorMessage = err.error.message
-      } else if (err.response && err.response.error && err.response.error.message) {
-        errorMessage = err.response.error.message
-      } else if (err.message && !err.message.includes('[object Object]')) {
-        errorMessage = err.message
+        errorMessage = err.error.message;
+      } else if (
+        err.response &&
+        err.response.error &&
+        err.response.error.message
+      ) {
+        errorMessage = err.response.error.message;
+      } else if (err.message && !err.message.includes("[object Object]")) {
+        errorMessage = err.message;
       } else {
-        // Fallback based on HTTP status
-        if (err.message && err.message.includes('400')) {
-          errorMessage = 'Invalid email or password. Please check your credentials.'
-        } else if (err.message && err.message.includes('401')) {
-          errorMessage = 'Invalid email or password'
-        } else if (err.message && err.message.includes('500')) {
-          errorMessage = 'Server error. Please try again later'
+        if (err.message && err.message.includes("400")) {
+          errorMessage =
+            "Invalid email or password. Please check your credentials.";
+        } else if (err.message && err.message.includes("401")) {
+          errorMessage = "Invalid email or password";
+        } else if (err.message && err.message.includes("500")) {
+          errorMessage = "Server error. Please try again later";
         }
       }
-      
-      setError(errorMessage)
-      
-      // Show specific toast for email verification
-      if (errorMessage.toLowerCase().includes('verify') || errorMessage.toLowerCase().includes('verification')) {
-        toast.error('Please verify your email before logging in. Check your inbox!', {
-          duration: 5000,
-          icon: '📧'
-        })
+
+      setError(errorMessage);
+
+      if (
+        errorMessage.toLowerCase().includes("verify") ||
+        errorMessage.toLowerCase().includes("verification")
+      ) {
+        toast.error(
+          "Please verify your email before logging in. Check your inbox!",
+          {
+            duration: 5000,
+            icon: "📧",
+          },
+        );
       } else {
-        toast.error(errorMessage)
+        toast.error(errorMessage);
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col justify-center py-12 px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Link to="/" className="flex justify-center items-center space-x-2 mb-8">
+        <Link
+          to="/"
+          className="flex justify-center items-center space-x-2 mb-8"
+        >
           <div className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center">
             <Shield className="w-5 h-5 text-background" />
-          </div>         
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Authrix</h1>
+          </div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            Authrix
+          </h1>
         </Link>
-        
+
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome back</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">
+            Welcome back
+          </h2>
           <p className="text-slate-600">
-            Don't have an account?{' '}
-            <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-blue-600 hover:text-blue-500 transition-colors"
+            >
               Sign up for free
             </Link>
           </p>
@@ -120,7 +142,10 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-slate-700 mb-2"
+              >
                 Email address
               </label>
               <input
@@ -137,37 +162,45 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-slate-700 mb-2"
+              >
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white"
-                placeholder="Enter your password"
-              />
+
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="block w-full px-4 py-3 border border-slate-200 rounded-xl placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white pr-10"
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5 text-slate-400" />
+                  ) : (
+                    <Eye className="w-5 h-5 text-slate-400" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-700">
-                  Remember me
-                </label>
-              </div>
-
               <div className="text-sm">
-                <Link to="/forgot-password" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors">
+                <Link
+                  to="/forgot-password"
+                  className="font-semibold text-blue-600 hover:text-blue-500 transition-colors"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -176,7 +209,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02]"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] cursor-pointer"
             >
               {loading ? (
                 <div className="flex items-center">
@@ -184,12 +217,12 @@ export default function LoginPage() {
                   Signing in...
                 </div>
               ) : (
-                'Sign in'
+                "Sign in"
               )}
             </button>
           </form>
         </div>
       </div>
     </div>
-  )
+  );
 }

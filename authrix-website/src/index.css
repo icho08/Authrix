@@ -1,83 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* Updated to professional blue primary color scheme */
 :root {
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.55 0.2 255);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.965 0.01 255);
-  --secondary-foreground: oklch(0.25 0 0);
-  --muted: oklch(0.965 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.965 0.01 255);
-  --accent-foreground: oklch(0.25 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.91 0 0);
-  --input: oklch(0.91 0 0);
-  --ring: oklch(0.55 0.2 255);
-  --chart-1: oklch(0.55 0.2 255);
-  --chart-2: oklch(0.65 0.18 160);
-  --chart-3: oklch(0.7 0.15 45);
-  --chart-4: oklch(0.6 0.2 290);
-  --chart-5: oklch(0.65 0.2 20);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.55 0.2 255);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.965 0.01 255);
-  --sidebar-accent-foreground: oklch(0.25 0 0);
-  --sidebar-border: oklch(0.91 0 0);
-  --sidebar-ring: oklch(0.55 0.2 255);
+  --background: #ffffff;
+  --foreground: #0a0e27;
+  --card: #ffffff;
+  --card-foreground: #0a0e27;
+  --popover: #ffffff;
+  --popover-foreground: #0a0e27;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #4f46e5;
+  --chart-1: #e76e50;
+  --chart-2: #2a9d8f;
+  --chart-3: #264653;
+  --chart-4: #f4a261;
+  --chart-5: #e9c46a;
+  --radius: 0.625rem;
 }
 
 .dark {
-  --background: oklch(0.12 0.01 255);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.16 0.01 255);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.16 0.01 255);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.6 0.2 255);
-  --primary-foreground: oklch(0.12 0.01 255);
-  --secondary: oklch(0.22 0.01 255);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.22 0.01 255);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.22 0.01 255);
-  --accent-foreground: oklch(0.97 0 0);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.97 0 0);
-  --border: oklch(0.25 0.01 255);
-  --input: oklch(0.25 0.01 255);
-  --ring: oklch(0.6 0.2 255);
-  --chart-1: oklch(0.6 0.2 255);
-  --chart-2: oklch(0.7 0.16 160);
-  --chart-3: oklch(0.75 0.14 45);
-  --chart-4: oklch(0.65 0.18 290);
-  --chart-5: oklch(0.7 0.18 20);
-  --sidebar: oklch(0.14 0.01 255);
-  --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.6 0.2 255);
-  --sidebar-primary-foreground: oklch(0.12 0.01 255);
-  --sidebar-accent: oklch(0.22 0.01 255);
-  --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: oklch(0.25 0.01 255);
-  --sidebar-ring: oklch(0.6 0.2 255);
+  --background: #0a0e27;
+  --foreground: #e8eaed;
+  --card: #121829;
+  --card-foreground: #e8eaed;
+  --popover: #121829;
+  --popover-foreground: #e8eaed;
+  --primary: #00d9ff;
+  --primary-foreground: #0a0e27;
+  --secondary: #ff006e;
+  --secondary-foreground: #e8eaed;
+  --muted: #2a2d45;
+  --muted-foreground: #888b9e;
+  --accent: #00d9ff;
+  --accent-foreground: #0a0e27;
+  --destructive: #ff4757;
+  --destructive-foreground: #e8eaed;
+  --border: #1f2237;
+  --input: #1f2237;
+  --ring: #00d9ff;
+  --chart-1: #00d9ff;
+  --chart-2: #ff006e;
+  --chart-3: #ffa502;
+  --chart-4: #7c3aed;
+  --chart-5: #06b6d4;
 }
 
 @theme inline {
-  --font-sans: "Inter", "Geist", "Geist Fallback", system-ui, sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback", monospace;
+  --font-sans: "JetBrains Mono", monospace;
+  --font-mono: "JetBrains Mono", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -121,6 +105,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground;
   }
 }

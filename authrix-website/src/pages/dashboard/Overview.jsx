@@ -100,7 +100,7 @@ export default function Overview() {
       toast.success('Copied to clipboard!')
       setTimeout(() => setCopied(null), 2000)
     } catch (err) {
-      toast.error('Failed to copy')
+      toast.error(err.message || 'Failed to copy')
     }
   }
 
