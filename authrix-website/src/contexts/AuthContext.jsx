@@ -1,86 +1,92 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import {AuthClient} from 'authrix-sdk'
+import { createContext, useContext, useState, useEffect } from "react";
+import { AuthClient } from "authrix-sdk";
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
 const authClient = new AuthClient({
-  apiKey: import.meta.env.VITE_API_KEY || '',
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
-})
+  apiKey: import.meta.env.VITE_API_KEY || "",
+  baseUrl: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+});
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAuth()
-  }, [])
+    checkAuth();
+  }, []);
 
   const checkAuth = async () => {
     try {
       if (authClient.isAuthenticated()) {
-        const userData = await authClient.getCurrentUser()
-        setUser(userData)
+        const userData = await authClient.getCurrentUser();
+        setUser(userData);
       }
     } catch (error) {
-      console.error('Auth check failed:', error)
+      console.error("Auth check failed:", error);
       // Clear tokens and user state on auth failure
-      setUser(null)
+      setUser(null);
       try {
-        await authClient.logout()
+        await authClient.logout();
       } catch (logoutError) {
         // Ignore logout errors, tokens might already be cleared
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const login = async (credentials) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = await authClient.login(credentials)
-      setUser(result.user)
-      return result
+      const result = await authClient.login(credentials);
+      setUser(result.user);
+      return result;
     } catch (error) {
-      throw error
+      throw error;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const register = async (userData) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = await authClient.register(userData)
+      const result = await authClient.register(userData);
       // Only set user if they are verified (auto-login)
       if (result.user && result.user.isVerified) {
-        setUser(result.user)
+        setUser(result.user);
       }
-      return result
+      return result;
     } catch (error) {
-      throw error
+      throw error;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const logout = async () => {
     try {
-      await authClient.logout()
-      setUser(null)
+      await authClient.logout();
+      setUser(null);
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error("Logout failed:", error);
     }
-  }
+  };
 
   const requestPasswordReset = async (email) => {
-    return await authClient.requestPasswordReset(email)
-  }
+    return await authClient.requestPasswordReset(email);
+  };
 
   const resetPassword = async (token, newPassword) => {
-    return await authClient.resetPassword(token, newPassword)
-  }
+    return await authClient.resetPassword(token, newPassword);
+  };
+
+  const updateProfile = async (data) => {
+    const updatedUser = await authClient.updateProfile(data);
+    setUser(updatedUser);
+    return updatedUser;
+  };
 
   const value = {
     user,
@@ -90,21 +96,18 @@ export function AuthProvider({ children }) {
     logout,
     requestPasswordReset,
     resetPassword,
+    updateProfile,
     isAuthenticated: !!user,
-    baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
-  }
+    baseUrl: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+  };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
+  return context;
 }

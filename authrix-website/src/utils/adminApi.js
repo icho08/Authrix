@@ -95,5 +95,9 @@ export const adminApi = {
   getActiveSessions: (appId) => apiRequest('/api/admin/apps/active-sessions', {
     method: 'POST',
     body: JSON.stringify({ appId })
+  }),
+  toggleRegistration: (appId, allowed) => apiRequest('/api/admin/apps/toggle-registration', {
+    method: 'POST',
+    body: JSON.stringify({ appId, allowed })
   })
 }

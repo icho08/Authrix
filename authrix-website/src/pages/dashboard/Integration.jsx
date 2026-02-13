@@ -20,6 +20,7 @@ import {
   Braces,
   BookOpen,
   Rocket,
+  Play,
 } from "lucide-react";
 
 export default function Integration() {
@@ -70,14 +71,26 @@ const authClient = new AuthClient({
   const reactCode = `import { useAuth } from 'authrix-sdk';
 
 function App() {
-  const { login, user, loading } = useAuth();
+  const { 
+    login, 
+    logout, 
+    user, 
+    loading, 
+    updateProfile 
+  } = useAuth();
   
   if (loading) return <div>Loading...</div>;
   
   return (
     <div>
       {user ? (
-        <p>Welcome {user.username}!</p>
+        <div>
+          <h1>Welcome {user.username}!</h1>
+          <button onClick={() => updateProfile({ username: 'NewName' })}>
+            Update Username
+          </button>
+          <button onClick={logout}>Sign Out</button>
+        </div>
       ) : (
         <button onClick={() => login({ 
           email: 'user@example.com', 
@@ -98,6 +111,14 @@ function App() {
     { method: "register(userData)", description: "Create new user account" },
     { method: "logout()", description: "Sign out current user" },
     { method: "getCurrentUser()", description: "Get authenticated user data" },
+    {
+      method: "updateProfile(data)",
+      description: "Update user profile (username)",
+    },
+    {
+      method: "changePassword(data)",
+      description: "Change user password",
+    },
     {
       method: "requestPasswordReset(email)",
       description: "Send password reset code",
@@ -127,8 +148,41 @@ function App() {
         </Button>
       </div>
 
+      {/* Video Tutorial */}
+      <Card className="overflow-hidden border-border/30 bg-card/30 backdrop-blur-sm group cursor-pointer relative hover:border-primary/50 transition-colors duration-500">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
+        <div className="aspect-video w-full bg-muted/30 flex items-center justify-center relative overflow-hidden">
+          {/* Placeholder Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5" />
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1607799275518-d58665d099db?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-overlay" />
+
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-20 w-20 rounded-full bg-background/80 backdrop-blur-md flex items-center justify-center border border-primary/20 shadow-2xl group-hover:scale-110 group-hover:bg-primary group-hover:border-primary transition-all duration-300 z-20">
+              <Play className="h-8 w-8 text-primary group-hover:text-primary-foreground ml-1 fill-current transition-colors duration-300" />
+            </div>
+          </div>
+
+          <div className="absolute bottom-6 left-6 z-20">
+            <h3 className="text-xl font-bold text-foreground">
+              Interactive Integration Guide
+            </h3>
+            <p className="text-muted-foreground">
+              Watch how to integrate Authrix in less than 2 minutes
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="flex items-center gap-4 py-2">
+        <Separator className="flex-1 opacity-50" />
+        <span className="text-xs text-muted-foreground uppercase tracking-widest font-medium">
+          Or follow the steps below
+        </span>
+        <Separator className="flex-1 opacity-50" />
+      </div>
+
       {/* Quick Start Steps */}
-      <Card>
+      <Card className="border-border/30 bg-card/30 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -140,7 +194,7 @@ function App() {
             </div>
           </div>
         </CardHeader>
-        <Separator />
+        <Separator className="opacity-50" />
         <CardContent className="pt-6">
           <div className="space-y-8">
             {/* Step 1 */}
@@ -197,7 +251,7 @@ function App() {
       </Card>
 
       {/* API Reference */}
-      <Card>
+      <Card className="border-border/30 bg-card/30 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
@@ -211,21 +265,23 @@ function App() {
             </div>
           </div>
         </CardHeader>
-        <Separator />
+        <Separator className="opacity-50" />
         <CardContent className="pt-6">
           <Tabs defaultValue="auth" className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid w-full max-w-xl grid-cols-3">
               <TabsTrigger value="auth">Authentication</TabsTrigger>
+              <TabsTrigger value="user">User Management</TabsTrigger>
               <TabsTrigger value="password">Password Reset</TabsTrigger>
             </TabsList>
+
             <TabsContent value="auth" className="mt-6">
-              <div className="rounded-lg border divide-y">
+              <div className="rounded-xl border border-border/50 divide-y divide-border/50 bg-background/50 overflow-hidden">
                 {apiMethods.slice(0, 4).map((item, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
                   >
-                    <code className="text-sm font-mono text-primary bg-primary/10 px-2 py-1 rounded">
+                    <code className="text-sm font-mono text-primary bg-primary/10 px-2.5 py-1 rounded-md">
                       {item.method}
                     </code>
                     <span className="text-sm text-muted-foreground">
@@ -235,14 +291,33 @@ function App() {
                 ))}
               </div>
             </TabsContent>
-            <TabsContent value="password" className="mt-6">
-              <div className="rounded-lg border divide-y">
-                {apiMethods.slice(4).map((item, index) => (
+
+            <TabsContent value="user" className="mt-6">
+              <div className="rounded-xl border border-border/50 divide-y divide-border/50 bg-background/50 overflow-hidden">
+                {apiMethods.slice(4, 6).map((item, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
                   >
-                    <code className="text-sm font-mono text-primary bg-primary/10 px-2 py-1 rounded">
+                    <code className="text-sm font-mono text-primary bg-primary/10 px-2.5 py-1 rounded-md">
+                      {item.method}
+                    </code>
+                    <span className="text-sm text-muted-foreground">
+                      {item.description}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="password" className="mt-6">
+              <div className="rounded-xl border border-border/50 divide-y divide-border/50 bg-background/50 overflow-hidden">
+                {apiMethods.slice(6).map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
+                  >
+                    <code className="text-sm font-mono text-primary bg-primary/10 px-2.5 py-1 rounded-md">
                       {item.method}
                     </code>
                     <span className="text-sm text-muted-foreground">

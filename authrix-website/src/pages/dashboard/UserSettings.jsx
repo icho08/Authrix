@@ -1,13 +1,19 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,80 +24,108 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { User, Mail, Key, AlertTriangle, Save, RefreshCw, Trash2, Eye, EyeOff } from "lucide-react"
-import toast from 'react-hot-toast'
-import { useAuth } from '../../contexts/AuthContext'
-import { adminApi } from '../../utils/adminApi'
+} from "@/components/ui/alert-dialog";
+import {
+  User,
+  Mail,
+  Key,
+  AlertTriangle,
+  Save,
+  RefreshCw,
+  Trash2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import { useAuth } from "../../contexts/AuthContext";
+import { adminApi } from "../../utils/adminApi";
 
 export default function UserSettings() {
-  const { user, logout } = useAuth()
-  const [loading, setLoading] = useState(false)
-  const [showChangePassword, setShowChangePassword] = useState(false)
+  const { user, logout, updateProfile, changePassword } = useAuth();
+  console.log(user);
+  const [loading, setLoading] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  })
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   const [showPasswords, setShowPasswords] = useState({
     old: false,
     new: false,
-    confirm: false
-  })
+    confirm: false,
+  });
   const [settings, setSettings] = useState({
     email: user?.email || "",
     username: user?.username || "",
     notifications: true,
-    twoFactor: false
-  })
+    twoFactor: false,
+  });
 
   const handleChangePassword = async (e) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error('New passwords do not match')
-      return
+      toast.error("New passwords do not match");
+      return;
     }
-    
+
     if (passwordForm.newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters')
-      return
+      toast.error("Password must be at least 6 characters");
+      return;
     }
-    
-    setLoading(true)
+
+    setLoading(true);
     try {
-      await adminApi.changePassword(passwordForm.oldPassword, passwordForm.newPassword)
-      toast.success('Password changed successfully!')
-      setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' })
-      setShowChangePassword(false)
+      const res = await changePassword(passwordForm);
+
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success("Password changed successfully!");
+      }
+      setPasswordForm({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setShowChangePassword(false);
     } catch (error) {
-      toast.error(error.message || 'Failed to change password')
+      toast.error(error.message || "Failed to change password");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleSave = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      toast.success('Settings updated successfully!')
+      const updates = {};
+      if (settings.username !== user?.username)
+        updates.username = settings.username;
+      if (Object.keys(updates).length === 0) {
+        toast("No changes to save");
+        return;
+      }
+
+      await updateProfile(updates);
+      toast.success("Profile updated successfully!");
     } catch (error) {
-      toast.error(error.message || 'Failed to update settings')
+      toast.error(error.message || "Failed to update profile");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDeleteAccount = async () => {
     try {
-       await adminApi.deleteUserAccount(); 
-      toast.success('Account deleted successfully')
-      logout()
+      await adminApi.deleteUserAccount();
+      toast.success("Account deleted successfully");
+      logout();
     } catch (error) {
-
-      toast.error(error.message ||'Failed to delete account')
+      toast.error(error.message || "Failed to delete account");
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -104,7 +138,9 @@ export default function UserSettings() {
             </div>
             <div>
               <CardTitle>Profile Information</CardTitle>
-              <CardDescription>Update your personal information and preferences</CardDescription>
+              <CardDescription>
+                Update your personal information and preferences
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -115,7 +151,7 @@ export default function UserSettings() {
             <Avatar className="h-20 w-20">
               <AvatarImage src="" />
               <AvatarFallback className="text-lg">
-                {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                {user?.username?.charAt(0)?.toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
@@ -135,28 +171,21 @@ export default function UserSettings() {
               <Input
                 id="username"
                 value={settings.username}
-                onChange={(e) => setSettings(prev => ({ ...prev, username: e.target.value }))}
-                disabled
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, username: e.target.value }))
+                }
               />
-              <p className="text-xs text-muted-foreground">Username cannot be changed</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={settings.email}
-                onChange={(e) => setSettings(prev => ({ ...prev, email: e.target.value }))}
-                disabled
-              />
-              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+              <Input id="email" type="email" value={user?.email} disabled />
             </div>
           </div>
 
           <Separator />
 
           {/* Preferences */}
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <div className="flex items-center justify-between opacity-60">
               <div className="space-y-0.5">
                 <Label className="text-base">Email Notifications</Label>
@@ -165,12 +194,16 @@ export default function UserSettings() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Switch 
+                <Switch
                   checked={settings.notifications}
-                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, notifications: checked }))}
+                  onCheckedChange={(checked) =>
+                    setSettings((prev) => ({ ...prev, notifications: checked }))
+                  }
                   disabled
                 />
-                <span className="text-xs text-muted-foreground">Coming Soon</span>
+                <span className="text-xs text-muted-foreground">
+                  Coming Soon
+                </span>
               </div>
             </div>
 
@@ -182,15 +215,19 @@ export default function UserSettings() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Switch 
+                <Switch
                   checked={settings.twoFactor}
-                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, twoFactor: checked }))}
+                  onCheckedChange={(checked) =>
+                    setSettings((prev) => ({ ...prev, twoFactor: checked }))
+                  }
                   disabled
                 />
-                <span className="text-xs text-muted-foreground">Coming Soon</span>
+                <span className="text-xs text-muted-foreground">
+                  Coming Soon
+                </span>
               </div>
             </div>
-          </div>
+          </div> */}
         </CardContent>
         <Separator />
         <CardContent className="pt-6">
@@ -219,7 +256,9 @@ export default function UserSettings() {
             </div>
             <div>
               <CardTitle>Security</CardTitle>
-              <CardDescription>Manage your account security settings</CardDescription>
+              <CardDescription>
+                Manage your account security settings
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -232,16 +271,19 @@ export default function UserSettings() {
                 Update your account password
               </p>
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowChangePassword(!showChangePassword)}
             >
               Change Password
             </Button>
           </div>
-          
+
           {showChangePassword && (
-            <form onSubmit={handleChangePassword} className="space-y-4 p-4 border rounded-lg bg-muted/50">
+            <form
+              onSubmit={handleChangePassword}
+              className="space-y-4 p-4 border rounded-lg bg-muted/50"
+            >
               <div className="space-y-2">
                 <Label htmlFor="oldPassword">Current Password</Label>
                 <div className="relative">
@@ -249,7 +291,12 @@ export default function UserSettings() {
                     id="oldPassword"
                     type={showPasswords.old ? "text" : "password"}
                     value={passwordForm.oldPassword}
-                    onChange={(e) => setPasswordForm(prev => ({ ...prev, oldPassword: e.target.value }))}
+                    onChange={(e) =>
+                      setPasswordForm((prev) => ({
+                        ...prev,
+                        oldPassword: e.target.value,
+                      }))
+                    }
                     required
                   />
                   <Button
@@ -257,13 +304,19 @@ export default function UserSettings() {
                     variant="ghost"
                     size="icon"
                     className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
-                    onClick={() => setShowPasswords(prev => ({ ...prev, old: !prev.old }))}
+                    onClick={() =>
+                      setShowPasswords((prev) => ({ ...prev, old: !prev.old }))
+                    }
                   >
-                    {showPasswords.old ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPasswords.old ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
                 <div className="relative">
@@ -271,7 +324,12 @@ export default function UserSettings() {
                     id="newPassword"
                     type={showPasswords.new ? "text" : "password"}
                     value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                    onChange={(e) =>
+                      setPasswordForm((prev) => ({
+                        ...prev,
+                        newPassword: e.target.value,
+                      }))
+                    }
                     required
                   />
                   <Button
@@ -279,13 +337,19 @@ export default function UserSettings() {
                     variant="ghost"
                     size="icon"
                     className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
-                    onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                    onClick={() =>
+                      setShowPasswords((prev) => ({ ...prev, new: !prev.new }))
+                    }
                   >
-                    {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPasswords.new ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm New Password</Label>
                 <div className="relative">
@@ -293,7 +357,12 @@ export default function UserSettings() {
                     id="confirmPassword"
                     type={showPasswords.confirm ? "text" : "password"}
                     value={passwordForm.confirmPassword}
-                    onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    onChange={(e) =>
+                      setPasswordForm((prev) => ({
+                        ...prev,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
                     required
                   />
                   <Button
@@ -301,13 +370,22 @@ export default function UserSettings() {
                     variant="ghost"
                     size="icon"
                     className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
-                    onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                    onClick={() =>
+                      setShowPasswords((prev) => ({
+                        ...prev,
+                        confirm: !prev.confirm,
+                      }))
+                    }
                   >
-                    {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPasswords.confirm ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 <Button type="submit" disabled={loading} className="gap-2">
                   {loading ? (
@@ -322,12 +400,16 @@ export default function UserSettings() {
                     </>
                   )}
                 </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => {
-                    setShowChangePassword(false)
-                    setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' })
+                    setShowChangePassword(false);
+                    setPasswordForm({
+                      oldPassword: "",
+                      newPassword: "",
+                      confirmPassword: "",
+                    });
                   }}
                 >
                   Cancel
@@ -347,7 +429,9 @@ export default function UserSettings() {
             </div>
             <div>
               <CardTitle className="text-destructive">Danger Zone</CardTitle>
-              <CardDescription>Irreversible and destructive actions</CardDescription>
+              <CardDescription>
+                Irreversible and destructive actions
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -371,13 +455,14 @@ export default function UserSettings() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete your account and remove all
-                    associated data including applications, users, and API keys.
+                    This action cannot be undone. This will permanently delete
+                    your account and remove all associated data including
+                    applications, users, and API keys.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction 
+                  <AlertDialogAction
                     onClick={handleDeleteAccount}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
@@ -390,5 +475,5 @@ export default function UserSettings() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
