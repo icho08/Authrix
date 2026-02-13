@@ -91,5 +91,9 @@ export const adminApi = {
   }),
   deleteUserAccount: () => apiRequest('/api/auth/delete-account', {
     method: 'POST'
-  })  
+  }), 
+  getActiveSessions: (appId) => apiRequest('/api/admin/apps/active-sessions', {
+    method: 'POST',
+    body: JSON.stringify({ appId })
+  })
 }

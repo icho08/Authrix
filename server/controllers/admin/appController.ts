@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-import { createApplication, deleteApp, getApplicationUsers, getUserApplication, updateApplicationSettings } from '../../models/admin/Application.js';
+import { createApplication, deleteApp, getApplicationUsers, getUserApplication, updateApplicationSettings, addAllowedDomain, removeAllowedDomain, getActiveSessions as getActiveAppSessions } from '../../models/admin/Application.js';
 import { logger } from '../../config/logger.js';
-import { refreshToken } from '../auth/userController.js';
 import prisma from '../../config/prisma.js';
 
 export const createApp = async (req: Request, res: Response) => {  
@@ -52,7 +51,7 @@ export const getMyApp = async (req: Request, res: Response) => {
 
 export const updateAppSettings = async(req : Request , res  : Response) => { 
   try { 
-    const {appId , name , requireEmailVerification} = req.body;
+    const {appId , name , requireEmailVerification, allowedDomains} = req.body;
     const user = req.user; 
     if(!user) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -66,7 +65,8 @@ export const updateAppSettings = async(req : Request , res  : Response) => {
       userId: user.userId,
       settings: {
         name,
-        requireEmailVerification
+        requireEmailVerification,
+        allowedDomains
       }
     });
     
@@ -167,3 +167,87 @@ export const getUserSessions = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Failed to fetch user sessions" });
   }
 }
+export const addDomain = async (req: Request, res: Response) => {
+  try {
+    const { appId, domain } = req.body;
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    if (!appId || !domain) {
+      return res.status(400).json({ error: "appId and domain are required" });
+    }
+    
+    // Basic domain validation
+    const domainRegex = /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(:\d+)?$/;
+    if (!domainRegex.test(domain)) {
+      return res.status(400).json({ error: "Invalid domain format. Use format: https://example.com" });
+    }
+    
+    const result = await addAllowedDomain({ appId, userId: user.userId, domain });
+    
+    if (result.error) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ error: "Failed to add domain" });
+  }
+};
+
+export const removeDomain = async (req: Request, res: Response) => {
+  try {
+    const { appId, domain } = req.body;
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    if (!appId || !domain) {
+      return res.status(400).json({ error: "appId and domain are required" });
+    }
+    
+    const result = await removeAllowedDomain({ appId, userId: user.userId, domain });
+    
+    if (result.error) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ error: "Failed to remove domain" });
+  }
+};
+
+
+export const getActiveSessions = async (req: Request, res: Response) => {
+  try {
+    const { appId } = req.body;
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    if (!appId) {
+      return res.status(400).json({ error: "appId is required" });
+    }
+    
+    const result = await getActiveAppSessions({ appId, userId: user.userId });
+    
+    if (result && 'error' in (result as any)) {
+      return res.status(400).json({ error: (result as any).error });
+    }
+    
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ error: "Failed to get active sessions" });
+  }
+};

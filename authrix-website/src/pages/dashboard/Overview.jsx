@@ -1,12 +1,18 @@
-import { useState, useEffect } from "react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -15,8 +21,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import {
   Plus,
   Key,
@@ -31,85 +42,114 @@ import {
   Clock,
   UserPlus,
   ArrowUpRight,
-  Eye, 
-  EyeOff
-  
-} from "lucide-react"
-import { adminApi } from "@/utils/adminApi"
-import { useAuth } from "@/contexts/AuthContext"
-import toast from "react-hot-toast"
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import { adminApi } from "@/utils/adminApi";
+import { useAuth } from "@/contexts/AuthContext";
+import toast from "react-hot-toast";
 
 export default function Overview() {
-  const { user, baseUrl } = useAuth()
-  const [app, setApp] = useState(null)
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [showCreateApp, setShowCreateApp] = useState(false)
-  const [appName, setAppName] = useState("")
-  const [copied, setCopied] = useState(null)
-  const [showSecret, setShowSecret] = useState(false)
-  const [error, setError] = useState('')
-  const [showApiKey , setShowApiKey] = useState(false)
+  const { user, baseUrl } = useAuth();
+  const [app, setApp] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreateApp, setShowCreateApp] = useState(false);
+  const [appName, setAppName] = useState("");
+  const [copied, setCopied] = useState(null);
+  const [showSecret, setShowSecret] = useState(false);
+  const [error, setError] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
   useEffect(() => {
     if (user) {
-      loadUserApp()
+      loadUserApp();
     }
-  }, [user])
+  }, [user]);
 
   const loadUserApp = async () => {
     try {
-      setLoading(true)
-      const result = await adminApi.getMyApp()
-      setApp(result.app)
-      
+      setLoading(true);
+      const result = await adminApi.getMyApp();
+      setApp(result.app);
+
       // Also fetch users for statistics
       if (result.app?.id) {
-        const usersData = await adminApi.getAppUsers(result.app.id)
-        setUsers(usersData || [])
+        const usersData = await adminApi.getAppUsers(result.app.id);
+        setUsers(usersData || []);
       }
     } catch (error) {
-      console.error('Failed to load app:', error)
-      setError('Failed to load application data')
+      console.error("Failed to load app:", error);
+      setError("Failed to load application data");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCreateApp = async () => {
     if (!appName.trim()) {
-      toast.error('Please enter an application name')
-      return
+      toast.error("Please enter an application name");
+      return;
     }
 
     try {
-      const newApp = await adminApi.createApp(appName)
-      setApp(newApp)
-      setShowCreateApp(false)
-      setAppName('')
-      toast.success('Application created successfully!')
+      const newApp = await adminApi.createApp(appName);
+      setApp(newApp);
+      setShowCreateApp(false);
+      setAppName("");
+      toast.success("Application created successfully!");
     } catch (error) {
-      console.error('Failed to create app:', error)
-      toast.error(error.message || 'Failed to create application')
+      console.error("Failed to create app:", error);
+      toast.error(error.message || "Failed to create application");
     }
-  }
+  };
 
   const copyToClipboard = async (text, type) => {
     try {
-      await navigator.clipboard.writeText(text)
-      setCopied(type)
-      toast.success('Copied to clipboard!')
-      setTimeout(() => setCopied(null), 2000)
+      await navigator.clipboard.writeText(text);
+      setCopied(type);
+      toast.success("Copied to clipboard!");
+      setTimeout(() => setCopied(null), 2000);
     } catch (err) {
-      toast.error(err.message || 'Failed to copy')
+      toast.error(err.message || "Failed to copy");
     }
-  }
+  };
 
-  // User statistics - now with real data
+  const GetActiveSessions = async () => {
+    try {
+      const result = await adminApi.getActiveSessions();
+      setApp(result.app);
+      setShowCreateApp(false);
+      setAppName("");
+      toast.success("Application created successfully!");
+    } catch (error) {
+      console.error("Failed to create app:", error);
+      toast.error(error.message || "Failed to create application");
+    }
+  };
+
   const stats = [
+    {
+      title: "Active Sessions",
+      value: app?.activeSessions?.toString() || "0",
+      change: "Live now",
+      trend: "up",
+      icon: Activity,
+      color: "text-purple-500",
+      bg: "bg-purple-500/10",
+      disabled: false,
+    },
     {
       title: "Total Users",
       value: users?.length?.toString() || "0",
-      change: (users?.filter(u => u?.createdAt && new Date(u.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))?.length || 0).toString() + " this month",
+      change:
+        (
+          users?.filter(
+            (u) =>
+              u?.createdAt &&
+              new Date(u.createdAt) >
+                new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          )?.length || 0
+        ).toString() + " this month",
       trend: "up",
       icon: Users,
       color: "text-blue-500",
@@ -118,8 +158,13 @@ export default function Overview() {
     },
     {
       title: "Verified Users",
-      value: (users?.filter(u => u?.isVerified)?.length || 0).toString(),
-      change: Math.round(((users?.filter(u => u?.isVerified)?.length || 0) / Math.max(users?.length || 0, 1)) * 100) + "% of total",
+      value: (users?.filter((u) => u?.isVerified)?.length || 0).toString(),
+      change:
+        Math.round(
+          ((users?.filter((u) => u?.isVerified)?.length || 0) /
+            Math.max(users?.length || 0, 1)) *
+            100,
+        ) + "% of total",
       trend: "up",
       icon: CheckCircle2,
       color: "text-emerald-500",
@@ -128,7 +173,14 @@ export default function Overview() {
     },
     {
       title: "Recent Signups",
-      value: (users?.filter(u => u?.createdAt && new Date(u.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))?.length || 0).toString(),
+      value: (
+        users?.filter(
+          (u) =>
+            u?.createdAt &&
+            new Date(u.createdAt) >
+              new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        )?.length || 0
+      ).toString(),
       change: "Last 7 days",
       trend: "up",
       icon: UserPlus,
@@ -136,17 +188,7 @@ export default function Overview() {
       bg: "bg-violet-500/10",
       disabled: false,
     },
-    {
-      title: "Active Sessions",
-      value: "0",
-      change: "N/A",
-      trend: "neutral",
-      icon: Activity,
-      color: "text-amber-500",
-      bg: "bg-amber-500/10",
-      disabled: true,
-    },
-  ]
+  ];
 
   if (loading) {
     return (
@@ -156,7 +198,7 @@ export default function Overview() {
           <span className="text-muted-foreground font-medium">Loading...</span>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -164,10 +206,12 @@ export default function Overview() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <p className="text-destructive mb-4">{error}</p>
-          <Button onClick={loadUserApp} variant="outline">Try Again</Button>
+          <Button onClick={loadUserApp} variant="outline">
+            Try Again
+          </Button>
         </div>
       </div>
-    )
+    );
   }
 
   if (!app) {
@@ -179,9 +223,12 @@ export default function Overview() {
             <Plus className="h-12 w-12 text-primary-foreground" />
           </div>
         </div>
-        <h2 className="text-3xl font-bold tracking-tight mb-3">Create Your First Application</h2>
+        <h2 className="text-3xl font-bold tracking-tight mb-3">
+          Create Your First Application
+        </h2>
         <p className="text-muted-foreground max-w-md mb-8 text-lg">
-          Get started by creating an application to receive your API keys and begin integrating authentication.
+          Get started by creating an application to receive your API keys and
+          begin integrating authentication.
         </p>
         <Dialog open={showCreateApp} onOpenChange={setShowCreateApp}>
           <DialogTrigger asChild>
@@ -193,7 +240,10 @@ export default function Overview() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Application</DialogTitle>
-              <DialogDescription>Enter a name for your new application. You can change this later.</DialogDescription>
+              <DialogDescription>
+                Enter a name for your new application. You can change this
+                later.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -215,7 +265,7 @@ export default function Overview() {
           </DialogContent>
         </Dialog>
       </div>
-    )
+    );
   }
 
   return (
@@ -223,9 +273,17 @@ export default function Overview() {
       {/* Stats Grid - Disabled features */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => (
-          <Card key={index} className={cn("relative overflow-hidden", stat.disabled && "opacity-60")}>
+          <Card
+            key={index}
+            className={cn(
+              "relative overflow-hidden",
+              stat.disabled && "opacity-60",
+            )}
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {stat.title}
+              </CardTitle>
               <div className={cn("rounded-lg p-2", stat.bg)}>
                 <stat.icon className={cn("h-4 w-4", stat.color)} />
               </div>
@@ -240,10 +298,14 @@ export default function Overview() {
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stat.disabled ? "Feature not available yet" : "from last month"}
+                {stat.disabled
+                  ? "Feature not available yet"
+                  : "from last month"}
               </p>
             </CardContent>
-            <div className={cn("absolute bottom-0 left-0 right-0 h-1", stat.bg)} />
+            <div
+              className={cn("absolute bottom-0 left-0 right-0 h-1", stat.bg)}
+            />
           </Card>
         ))}
       </div>
@@ -260,7 +322,9 @@ export default function Overview() {
                   Active
                 </Badge>
               </div>
-              <CardDescription className="font-mono text-xs">{app.id}</CardDescription>
+              <CardDescription className="font-mono text-xs">
+                {app.id}
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" disabled>
@@ -281,21 +345,28 @@ export default function Overview() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium">API Key</Label>
-                  <p className="text-xs text-muted-foreground">Use in client-side code (Do not share this key ) </p>
+                  <p className="text-xs text-muted-foreground">
+                    Use in client-side code (Do not share this key ){" "}
+                  </p>
                 </div>
               </div>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                   
-                  <Input readOnly value={showApiKey ? app.apiKey : "********"} className="pr-10 font-mono text-sm bg-muted/50" />
-            
+                  <Input
+                    readOnly
+                    value={showApiKey ? app.apiKey : "********"}
+                    className="pr-10 font-mono text-sm bg-muted/50"
+                  />
                 </div>
-                 
-                <TooltipProvider>
 
+                <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" onClick={() => copyToClipboard(app.apiKey, "api")}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => copyToClipboard(app.apiKey, "api")}
+                      >
                         {copied === "api" ? (
                           <Check className="h-4 w-4 text-emerald-500" />
                         ) : (
@@ -309,14 +380,23 @@ export default function Overview() {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" onClick={() => setShowApiKey(!showApiKey)}>
-                        {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setShowApiKey(!showApiKey)}
+                      >
+                        {showApiKey ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{showApiKey ? "Hide" : "Show"}</TooltipContent>
+                    <TooltipContent>
+                      {showApiKey ? "Hide" : "Show"}
+                    </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                
               </div>
             </div>
 
@@ -328,7 +408,9 @@ export default function Overview() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Secret Key</Label>
-                  <p className="text-xs text-muted-foreground">Keep this private</p>
+                  <p className="text-xs text-muted-foreground">
+                    Keep this private
+                  </p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -343,17 +425,31 @@ export default function Overview() {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" onClick={() => setShowSecret(!showSecret)}>
-                        {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setShowSecret(!showSecret)}
+                      >
+                        {showSecret ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{showSecret ? "Hide" : "Show"}</TooltipContent>
+                    <TooltipContent>
+                      {showSecret ? "Hide" : "Show"}
+                    </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" onClick={() => copyToClipboard(app.secretKey, "secret")}>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => copyToClipboard(app.secretKey, "secret")}
+                      >
                         {copied === "secret" ? (
                           <Check className="h-4 w-4 text-emerald-500" />
                         ) : (
@@ -385,18 +481,24 @@ export default function Overview() {
               <span className="font-medium">0 / ∞</span>
             </div>
             <Progress value={0} className="h-2" />
-            <p className="text-xs text-muted-foreground">Analytics coming soon</p>
+            <p className="text-xs text-muted-foreground">
+              Analytics coming soon
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Email Verification</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Email Verification
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-sm">Status</span>
-              <Badge variant={app.requireEmailVerification ? "default" : "secondary"}>
+              <Badge
+                variant={app.requireEmailVerification ? "default" : "secondary"}
+              >
                 {app.requireEmailVerification ? "Required" : "Optional"}
               </Badge>
             </div>
@@ -416,11 +518,15 @@ export default function Overview() {
               })}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              {Math.floor((Date.now() - new Date(app.createdAt).getTime()) / (1000 * 60 * 60 * 24))} days ago
+              {Math.floor(
+                (Date.now() - new Date(app.createdAt).getTime()) /
+                  (1000 * 60 * 60 * 24),
+              )}{" "}
+              days ago
             </p>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

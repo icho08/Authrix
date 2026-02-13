@@ -1,5 +1,4 @@
 import express from "express"; 
-import cors from "cors";  
 import dotenv from "dotenv"; 
 import bodyParser from "body-parser";
 import { logger } from "./config/logger.js";
@@ -8,38 +7,14 @@ import auth from "./routes/auth/user.js";
 import { generalLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestId } from "./middleware/requestId.js";
+import { dynamicCors } from "./middleware/dynamicCors.js";
 
 const app = express();
 dotenv.config(); 
 
 app.set('trust proxy', process.env.NODE_ENV === 'production');
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    
-    if (origin.match(/^http:\/\/localhost:\d+$/)) {
-      return callback(null, true);
-    }
-    
-    const allowedDomains = [
-      "https://authrix.chhabi.xyz",
-      "https://api.authrix.chhabi.xyz"
-    ];
-    
-    if (allowedDomains.includes(origin)) {
-      return callback(null, true);
-    }
-    
-    if (origin.startsWith('https://')) {
-      return callback(null, true);
-    }
-   callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-API-Key", "X-Requested-With", "X-Refresh-Token"]
-}));
+app.use(dynamicCors);
 
 app.use(requestId);
 app.use(generalLimiter);

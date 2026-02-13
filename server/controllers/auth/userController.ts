@@ -499,3 +499,30 @@ export const changePassword = async (req : Request , res:Response , next:NextFun
     next(err);
   }
 }
+
+
+export const deleteUserAccount = async (req : Request , res : Response)=> { 
+  try { 
+    const user = req.user ; 
+    const applicationId = req.application?.id;
+    if(!user || !applicationId) { 
+      return res.status(401).json({ error: "Unauthorized" }); 
+    } 
+    await prisma.user.deleteMany({
+      where: { id: user.userId, applicationId } 
+    });
+    await prisma.application.deleteMany({
+      where: { id: applicationId , userId : user.userId } 
+    });
+    await prisma.session.deleteMany({ 
+      where: { userId: user.userId }
+    });
+
+    return res.status(200).json({ message: "User account and associated application deleted successfully" });
+  }catch(err){ 
+    
+    logger.error(err); 
+    return res.status(500).json({ error: "Failed to delete user account" }); 
+
+  }
+}

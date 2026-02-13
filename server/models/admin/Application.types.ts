@@ -14,6 +14,7 @@ export interface UpdateApplicationSettingsParams {
   settings: {
     name?: string;
     requireEmailVerification?: boolean;
+    allowedDomains?: string[];
   };
 }
 
@@ -33,9 +34,15 @@ export interface ApplicationResponse {
   appId?: string;
   name?: string;
   requireEmailVerification?: boolean;
+  allowedDomains?: string[];
   error?: string;
 }
 
+export interface ManageDomainsParams {
+  appId: string;
+  userId: string;
+  domain: string;
+}
 export interface ApplicationUser {
   id: string;
   username: string;
@@ -43,4 +50,9 @@ export interface ApplicationUser {
   isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface GetActiveSessionsParams {
+  appId: string;
+  userId: string;
 }

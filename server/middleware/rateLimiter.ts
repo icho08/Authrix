@@ -1,13 +1,12 @@
 import rateLimit from 'express-rate-limit';
-
 const getClientIP = (req: any) => {
   if (process.env.NODE_ENV === 'production') {
     return req.ip || req.connection.remoteAddress;
   }
+  
   return req.connection.remoteAddress;
 };
 
-// General API rate limit
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
   max: 100, 

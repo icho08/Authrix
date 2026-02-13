@@ -1,26 +1,40 @@
-"use client"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
-import { Code2, Copy, Check, ExternalLink, Terminal, FileCode, Braces, BookOpen, Rocket } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import {
+  Code2,
+  Copy,
+  Check,
+  ExternalLink,
+  Terminal,
+  FileCode,
+  Braces,
+  BookOpen,
+  Rocket,
+} from "lucide-react";
 
 export default function Integration() {
-  const [copied, setCopied] = useState(null)
+  const [copied, setCopied] = useState(null);
 
   const app = {
     apiKey: "ax_live_1234567890abcdef",
-  }
-  const baseUrl = ""
+  };
+  const baseUrl = "";
 
   const copyToClipboard = async (text, id) => {
-    await navigator.clipboard.writeText(text)
-    setCopied(id)
-    setTimeout(() => setCopied(null), 2000)
-  }
+    await navigator.clipboard.writeText(text);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   const CodeBlock = ({ code, id, language = "javascript" }) => (
     <div className="relative group">
@@ -31,23 +45,27 @@ export default function Integration() {
           className="h-8 w-8 bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={() => copyToClipboard(code, id)}
         >
-          {copied === id ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+          {copied === id ? (
+            <Check className="h-4 w-4 text-emerald-500" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
         </Button>
       </div>
       <pre className="bg-zinc-950 dark:bg-zinc-900 rounded-xl p-4 overflow-x-auto border border-zinc-800">
         <code className="text-sm text-emerald-400 font-mono">{code}</code>
       </pre>
     </div>
-  )
+  );
 
-  const installCode = `npm install authrix-sdk`
+  const installCode = `npm install authrix-sdk`;
 
   const initCode = `import { AuthClient } from 'authrix-sdk';
 
 const authClient = new AuthClient({
   apiKey: '${app.apiKey}',
   baseUrl: '${baseUrl}'
-});`
+});`;
 
   const reactCode = `import { useAuth } from 'authrix-sdk';
 
@@ -70,24 +88,37 @@ function App() {
       )}
     </div>
   );
-}`
+}`;
 
   const apiMethods = [
-    { method: "login(credentials)", description: "Sign in user with email & password" },
+    {
+      method: "login(credentials)",
+      description: "Sign in user with email & password",
+    },
     { method: "register(userData)", description: "Create new user account" },
     { method: "logout()", description: "Sign out current user" },
     { method: "getCurrentUser()", description: "Get authenticated user data" },
-    { method: "requestPasswordReset(email)", description: "Send password reset code" },
-    { method: "resetPassword(code, newPassword)", description: "Reset user password" },
-  ]
+    {
+      method: "requestPasswordReset(email)",
+      description: "Send password reset code",
+    },
+    {
+      method: "resetPassword(code, newPassword)",
+      description: "Reset user password",
+    },
+  ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Integration Guide</h2>
-          <p className="text-muted-foreground">Get started with Authrix SDK in your application</p>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Integration Guide
+          </h2>
+          <p className="text-muted-foreground">
+            Get started with Authrix SDK in your application
+          </p>
         </div>
         <Button variant="outline" className="gap-2 bg-transparent">
           <BookOpen className="h-4 w-4" />
@@ -174,7 +205,9 @@ function App() {
             </div>
             <div>
               <CardTitle>API Reference</CardTitle>
-              <CardDescription>Available SDK methods and their usage</CardDescription>
+              <CardDescription>
+                Available SDK methods and their usage
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -195,7 +228,9 @@ function App() {
                     <code className="text-sm font-mono text-primary bg-primary/10 px-2 py-1 rounded">
                       {item.method}
                     </code>
-                    <span className="text-sm text-muted-foreground">{item.description}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {item.description}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -210,7 +245,9 @@ function App() {
                     <code className="text-sm font-mono text-primary bg-primary/10 px-2 py-1 rounded">
                       {item.method}
                     </code>
-                    <span className="text-sm text-muted-foreground">{item.description}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {item.description}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -218,31 +255,6 @@ function App() {
           </Tabs>
         </CardContent>
       </Card>
-
-      {/* SDKs */}
-      <div className="grid gap-4 md:grid-cols-3">
-        {[
-          { name: "JavaScript", version: "v2.1.0", status: "stable" },
-          { name: "Python", version: "v1.8.0", status: "stable" },
-          { name: "Go", version: "v0.9.0", status: "beta" },
-        ].map((sdk) => (
-          <Card key={sdk.name} className="group hover:border-primary/50 transition-colors">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{sdk.name} SDK</CardTitle>
-                <Badge variant={sdk.status === "stable" ? "secondary" : "outline"}>{sdk.status}</Badge>
-              </div>
-              <CardDescription>{sdk.version}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="ghost" className="w-full justify-start gap-2 group-hover:text-primary">
-                <ExternalLink className="h-4 w-4" />
-                View documentation
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
-  )
+  );
 }

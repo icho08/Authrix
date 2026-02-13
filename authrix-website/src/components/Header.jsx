@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Shield,
   Menu,
   X,
   ArrowRight,
   Sun,
   Moon,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -28,33 +28,27 @@ export default function Header({ variant = "landing", breadcrumb }) {
   const isLanding = variant === "landing";
   const headerClass =
     isLanding && !scrolled && !isMenuOpen
-      ? "fixed top-0 w-full z-50 transition-all duration-300 bg-transparent"
+      ? "fixed top-0 w-full z-50 transition-all duration-300 bg-transparent py-2"
       : isLanding
-        ? "fixed top-0 w-full z-50 transition-all duration-300 bg-background/80 backdrop-blur-xl border-b border-border"
-        : "sticky top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border";
+        ? "fixed top-0 w-full z-50 transition-all duration-300 bg-background/60 backdrop-blur-2xl backdrop-saturate-150 border-b border-white/10 dark:border-white/5 py-2 supports-[backdrop-filter]:bg-background/60"
+        : "sticky top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border py-2";
 
   return (
     <nav className={headerClass}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-0">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-2 sm:gap-0">
         <div className="flex items-center gap-3">
-          <Link
-            to="/"
-            className="flex items-center gap-1.5 sm:gap-2 group flex-shrink-0"
-          >
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/50 blur-lg rounded-full group-hover:bg-primary/80 transition-all duration-500"></div>
-              <div className="relative w-8 sm:w-10 h-8 sm:h-10 bg-gradient-to-br from-primary to-violet-600 rounded-xl flex items-center justify-center border border-white/20 shadow-xl">
-                <Shield className="w-5 sm:w-6 h-5 sm:h-6 text-white" />
-              </div>
+          <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
+            <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-linear-to-tr from-primary/20 to-violet-500/20 group-hover:from-primary/30 group-hover:to-violet-500/30 transition-all duration-300 border border-white/10">
+              <Sparkles className="w-4 h-4 text-primary transition-transform group-hover:scale-110 duration-300" />
             </div>
-            <span className="font-bold text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 hidden xs:block">
+            <span className="font-bold text-xl sm:text-2xl tracking-tight bg-clip-text text-transparent bg-linear-to-r from-foreground via-foreground/90 to-foreground/70 group-hover:to-primary transition-all duration-300">
               Authrix
             </span>
           </Link>
           {breadcrumb && (
             <>
               <ChevronRight className="w-4 h-4 text-muted-foreground hidden sm:block" />
-              <span className="text-muted-foreground hidden sm:block">
+              <span className="text-muted-foreground hidden sm:block font-medium">
                 {breadcrumb}
               </span>
             </>
@@ -93,44 +87,47 @@ export default function Header({ variant = "landing", breadcrumb }) {
           })}
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
+            className="p-2.5 rounded-full hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
             aria-label="Toggle theme"
           >
             {isDark ? (
-              <Sun className="w-4 sm:w-5 h-4 sm:h-5" />
+              <Sun className="w-5 h-5" />
             ) : (
-              <Moon className="w-4 sm:w-5 h-4 sm:h-5" />
+              <Moon className="w-5 h-5" />
             )}
           </button>
 
-          <Link
-            to="/login"
-            className="hidden sm:inline-block text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Sign In
-          </Link>
-          <Link
-            to="/register"
-            className="relative group px-3 sm:px-5 py-2 sm:py-2.5 overflow-hidden rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-all duration-300 flex-shrink-0"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-violet-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <span className="relative z-10 text-xs sm:text-sm font-semibold text-foreground flex items-center gap-1 sm:gap-2">
-              <span className="hidden sm:inline">Get Started</span>
-              <span className="sm:hidden">Start</span>
-              <ArrowRight className="w-3 sm:w-4 h-3 sm:h-4 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link
+              to="/login"
+              className="hidden sm:inline-block text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              to="/register"
+              className="relative group px-3 sm:px-5 py-2 sm:py-2.5 overflow-hidden rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-all duration-300 flex-shrink-0"
+            >
+              <div className="absolute inset-0 bg-linear-to-r from-primary/20 to-violet-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10 text-xs sm:text-sm font-semibold text-foreground flex items-center gap-1 sm:gap-2">
+                <span className="hidden sm:inline">Get Started</span>
+                <span className="sm:hidden">Start</span>
+                <ArrowRight className="w-3 sm:w-4 h-3 sm:h-4 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </Link>
+          </div>
+
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 text-muted-foreground hover:text-foreground flex-shrink-0"
           >
             {isMenuOpen ? (
-              <X className="w-5 sm:w-6 h-5 sm:h-6" />
+              <X className="w-6 h-6" />
             ) : (
-              <Menu className="w-5 sm:w-6 h-5 sm:h-6" />
+              <Menu className="w-6 h-6" />
             )}
           </button>
         </div>
@@ -138,9 +135,9 @@ export default function Header({ variant = "landing", breadcrumb }) {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full h-[calc(100vh-64px)] bg-background border-t border-border p-4 animate-in slide-in-from-top-4 overflow-y-auto shadow-xl">
+        <div className="md:hidden absolute top-full left-0 w-full h-[calc(100vh-64px)] bg-background/95 backdrop-blur-2xl border-t border-border p-4 animate-in slide-in-from-top-4 overflow-y-auto">
           <div className="flex flex-col h-full">
-            <div className="space-y-2 flex-1">
+            <div className="space-y-1 flex-1">
               {[
                 { href: "/#features", text: "Features" },
                 { href: "/pricing", text: "Pricing" },
@@ -151,7 +148,7 @@ export default function Header({ variant = "landing", breadcrumb }) {
                     key={i}
                     href={item.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className="block px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors border border-transparent hover:border-border/50"
+                    className="block px-4 py-4 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-xl transition-all"
                   >
                     {item.text}
                   </a>
@@ -160,25 +157,25 @@ export default function Header({ variant = "landing", breadcrumb }) {
                     key={i}
                     to={item.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className="block px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors border border-transparent hover:border-border/50"
+                    className="block px-4 py-4 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-xl transition-all"
                   >
                     {item.text}
                   </Link>
                 ),
               )}
             </div>
-            <div className="pt-4 mt-4 border-t border-border flex flex-col gap-3 pb-8">
+            <div className="pt-6 mt-4 border-t border-border flex flex-col gap-3 pb-8">
               <Link
                 to="/login"
                 onClick={() => setIsMenuOpen(false)}
-                className="block px-4 py-3 text-center text-sm font-medium text-muted-foreground hover:text-foreground bg-muted/50 rounded-lg border border-border"
+                className="block px-4 py-3.5 text-center text-base font-medium text-muted-foreground hover:text-foreground bg-secondary/30 rounded-xl border border-border/50"
               >
                 Sign In
               </Link>
               <Link
                 to="/register"
                 onClick={() => setIsMenuOpen(false)}
-                className="block px-4 py-3 text-center text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 shadow-lg shadow-primary/20"
+                className="block px-4 py-3.5 text-center text-base font-bold text-white bg-primary rounded-xl hover:bg-primary/90 shadow-lg shadow-primary/25"
               >
                 Get Started
               </Link>

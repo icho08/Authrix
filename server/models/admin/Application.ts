@@ -8,8 +8,11 @@ import {
   UpdateApplicationSettingsParams, 
   DeleteApplicationParams, 
   GetApplicationUsersParams,
-  ApplicationResponse 
+  ApplicationResponse,
+  ManageDomainsParams,
+  GetActiveSessionsParams
 } from "./Application.types.js";
+
 
 export const createApplication = async (params: CreateApplicationParams): Promise<ApplicationResponse> => {
   const { name, userId } = params;
@@ -36,7 +39,7 @@ export const createApplication = async (params: CreateApplicationParams): Promis
     if (!app) {
       return { error: "something went wrong" };
     }
-    return { apiKey, secretKey, appId: app.id, name: app.name, requireEmailVerification: app.requireEmailVerification };
+    return { apiKey, secretKey, appId: app.id, name: app.name, requireEmailVerification: app.requireEmailVerification, allowedDomains: app.allowedDomains };
   } catch (err: any) {
     logger.error(err);
     return { error: "Failed to create application" }
@@ -53,6 +56,7 @@ export const getUserApplication = async (userId: string) => {
         apiKey: true,
         secretKey: true,
         requireEmailVerification: true,
+        allowedDomains: true,
         createdAt: true,
         updatedAt: true
       }
@@ -105,7 +109,7 @@ export const updateApplicationSettings = async (params: UpdateApplicationSetting
     const updatedApp = await prisma.application.update({
       where: { id: appId, userId },
       data: settings,
-      select: { id: true, name: true, requireEmailVerification: true }
+      select: { id: true, name: true, requireEmailVerification: true, allowedDomains: true }
     });
     
     return updatedApp;
@@ -197,3 +201,115 @@ export const getApplicationUsers = async (params: GetApplicationUsersParams) => 
     return { error: "Failed to fetch app users" };
   }
 }
+
+export const addAllowedDomain = async (params: ManageDomainsParams) => {
+  const { appId, userId, domain } = params;
+  
+  try {
+    const app = await prisma.application.findFirst({
+      where: { id: appId, userId },
+      select: { allowedDomains: true }
+    });
+    
+    if (!app) {
+      return { error: "App not found or unauthorized" };
+    }
+    
+    if (app.allowedDomains.includes(domain)) {
+      return { error: "Domain already exists" };
+    }
+    
+    const updatedApp = await prisma.application.update({
+      where: { id: appId, userId },
+      data: {
+        allowedDomains: [...app.allowedDomains, domain]
+      },
+      select: { allowedDomains: true }
+    });
+    
+    return { allowedDomains: updatedApp.allowedDomains };
+  } catch (err: any) {
+    logger.error(err);
+    return { error: "Failed to add domain" };
+  }
+};
+
+export const removeAllowedDomain = async (params: ManageDomainsParams) => {
+  const { appId, userId, domain } = params;
+  
+  try {
+    const app = await prisma.application.findFirst({
+      where: { id: appId, userId },
+      select: { allowedDomains: true }
+    });
+    
+    if (!app) {
+      return { error: "App not found or unauthorized" };
+    }
+    
+    const updatedApp = await prisma.application.update({
+      where: { id: appId, userId },
+      data: {
+        allowedDomains: app.allowedDomains.filter(d => d !== domain)
+      },
+      select: { allowedDomains: true }
+    });
+    
+    return { allowedDomains: updatedApp.allowedDomains };
+  } catch (err: any) {
+    logger.error(err);
+    return { error: "Failed to remove domain" };
+  }
+};
+
+export const getActiveSessions = async (params: GetActiveSessionsParams) => {
+  const { appId, userId } = params;
+  
+  try {
+    const app = await prisma.application.findFirst({
+      where: { id: appId, userId },
+      select: { id: true }
+    });
+    
+    if (!app) {
+      return { error: "App not found or unauthorized" };
+    }
+    
+    const sessions = await prisma.session.findMany({
+      where: {
+        user: {
+          applicationId: app.id
+        },
+        isActive: true
+      },
+      select: {
+        id: true,
+        userId: true,
+        deviceName: true,
+        browser: true,
+        os: true,
+        deviceType: true,
+        location: true,
+        ipAddress: true,
+        createdAt: true,
+        lastUsedAt: true,
+        expiresAt: true,
+        user: {
+          select: {
+            username: true,
+            email: true
+          }
+        }
+      },
+      orderBy: {
+        lastUsedAt: 'desc'
+      }
+    });
+
+    return sessions;
+  } catch (err: any) {
+    logger.error(err);
+    return { error: "Failed to fetch active sessions" };
+  }
+};
+

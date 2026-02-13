@@ -3,6 +3,7 @@ import { register, getProfile, refreshToken, login, logout, logoutAll, logoutOth
 import { verifyApiKey } from "../../middleware/apiAuth.js";
 import { authenticateUser } from "../../middleware/jwtAuth.js";
 import { authLimiter, loginLimiter } from "../../middleware/rateLimiter.js";
+import { deleteUserAccount } from "../../controllers/auth/userController.js";
 
 
 const router = express.Router();
@@ -20,4 +21,5 @@ router.get("/profile", verifyApiKey, authenticateUser, getProfile);
 router.get("/sessions", verifyApiKey, authenticateUser, getSessions);
 router.get("/verify" , authLimiter , verifyEmail ); 
 router.post("/reset" , authLimiter , verifyApiKey , authenticateUser , changePassword );
+router.post("/delete-account" , authLimiter , verifyApiKey , authenticateUser , deleteUserAccount );
 export default router;
