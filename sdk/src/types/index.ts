@@ -58,6 +58,18 @@ export interface AuthContextType {
 }
 
 export interface AuthProviderProps {
-  children : ReactNode;
+  children : ReactNode; 
   client: AuthClient;
 }
+
+export interface UpdateProfileData {
+  username?: string;
+  email?: string;
+  password?: string;
+}
+
+export interface ChangePasswordData {
+  oldPassword: string;
+  newPassword: string;
+}
+

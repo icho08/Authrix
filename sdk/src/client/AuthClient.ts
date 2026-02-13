@@ -6,7 +6,9 @@ import type {
   LoginData, 
   User, 
   AuthResponse, 
-  Session 
+  Session, 
+  UpdateProfileData,
+  ChangePasswordData
 } from '../types';
 
 export class AuthClient {
@@ -190,5 +192,19 @@ export class AuthClient {
   isAuthenticated(): boolean {
     const hasToken = !!this.accessToken;
     return hasToken;
+  }
+
+  async updateProfile(data: UpdateProfileData): Promise<User> {
+    return this.http.request<User>('/api/auth/update-profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }, this.accessToken);
+  }
+
+  async changePassword(data: ChangePasswordData): Promise<{ message: string }> {
+    return this.http.request<{ message: string }>('/api/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, this.accessToken);
   }
 }

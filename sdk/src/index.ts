@@ -8,7 +8,9 @@ export type {
   ResetPasswordData, 
   User, 
   AuthResponse, 
-  Session 
+  Session ,
+  UpdateProfileData,
+  ChangePasswordData,
 } from './types';
 
 export { AuthClient as default } from './client/AuthClient';
