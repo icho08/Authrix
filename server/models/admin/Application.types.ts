@@ -56,3 +56,9 @@ export interface GetActiveSessionsParams {
   appId: string;
   userId: string;
 }
+
+export interface ToggleAppRegistrationParams {
+  appId: string;
+  userId: string;
+  allowed : boolean;
+}

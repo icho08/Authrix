@@ -10,7 +10,8 @@ import {
   GetApplicationUsersParams,
   ApplicationResponse,
   ManageDomainsParams,
-  GetActiveSessionsParams
+  GetActiveSessionsParams,
+  ToggleAppRegistrationParams
 } from "./Application.types.js";
 
 
@@ -58,7 +59,8 @@ export const getUserApplication = async (userId: string) => {
         requireEmailVerification: true,
         allowedDomains: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true, 
+        isRegistrationOpen : true
       }
     });
 
@@ -313,3 +315,30 @@ export const getActiveSessions = async (params: GetActiveSessionsParams) => {
   }
 };
 
+export const toggleAppRegistration = async (params: ToggleAppRegistrationParams) => {
+  const { appId, userId , allowed } = params;
+  
+  try {
+    const app = await prisma.application.findFirst({
+      where: { id: appId, userId },
+      select: {isRegistrationOpen : true}
+    });
+    
+    if (!app) {
+      return { error: "App not found or unauthorized" };
+    }
+    
+    const updatedApp = await prisma.application.update({
+      where: { id: appId, userId },
+      data: {
+        isRegistrationOpen: allowed
+      },
+      select: { isRegistrationOpen: true }
+    });
+    
+    return { isRegistrationOpen: updatedApp.isRegistrationOpen };
+  } catch (err: any) {
+    logger.error(err);
+    return { error: "Failed to toggle registration" };
+  }
+};

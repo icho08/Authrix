@@ -97,7 +97,8 @@ export const createUser = async (params: CreateUserParams) => {
     userId: user.id,
     email: user.email,
     applicationId: user.applicationId,
-    isVerified: user.isVerified
+    isVerified: user.isVerified, 
+    username : user.username , 
   });
   
   const refreshToken = await signRefreshToken(user.id, user.applicationId, userAgent, ipAddress);
@@ -215,7 +216,9 @@ export const loginUser = async (params: LoginUserParams) => {
       userId: user.id,
       email: user.email,
       applicationId: user.applicationId,
-      isVerified: user.isVerified
+      isVerified: user.isVerified,
+      username : user.username
+
     }),
     refreshToken: await signRefreshToken(user.id, user.applicationId, userAgent, ipAddress)
   };

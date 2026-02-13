@@ -1,6 +1,6 @@
 
 import express from "express";
-import { createApp, DeleteApp, getAppUsers, getMyApp, updateAppSettings, getUserSessions, addDomain, removeDomain, getActiveSessions } from "../../controllers/admin/appController.js";
+import { createApp, DeleteApp, getAppUsers, getMyApp, updateAppSettings, getUserSessions, addDomain, removeDomain, getActiveSessions, toggleRegistration } from "../../controllers/admin/appController.js";
 import { verifyApiKey } from "../../middleware/apiAuth.js";
 import { createAppLimiter } from "../../middleware/rateLimiter.js";
 import { authenticateUser } from "../../middleware/jwtAuth.js";
@@ -18,4 +18,5 @@ router.post("/apps/domains/remove", verifyApiKey, authenticateUser, removeDomain
 // get active sessions
 router.post('/active-sessions', verifyApiKey, authenticateUser, getActiveSessions);
 
+router.post('/apps/toggle-registration', verifyApiKey, authenticateUser, toggleRegistration);
 export default router; 

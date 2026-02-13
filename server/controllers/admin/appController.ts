@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createApplication, deleteApp, getApplicationUsers, getUserApplication, updateApplicationSettings, addAllowedDomain, removeAllowedDomain, getActiveSessions as getActiveAppSessions } from '../../models/admin/Application.js';
+import { createApplication, deleteApp, getApplicationUsers, getUserApplication, updateApplicationSettings, addAllowedDomain, removeAllowedDomain, getActiveSessions as getActiveAppSessions, toggleAppRegistration } from '../../models/admin/Application.js';
 import { logger } from '../../config/logger.js';
 import prisma from '../../config/prisma.js';
 
@@ -249,5 +249,34 @@ export const getActiveSessions = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     res.status(500).json({ error: "Failed to get active sessions" });
+  }
+};
+
+export const toggleRegistration = async (req: Request, res: Response) => {
+  try {
+    const { appId  , allowed} = req.body;
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    if (!appId) {
+      return res.status(400).json({ error: "appId is required" });
+    }
+    
+  if(allowed === undefined){
+    return res.status(400).json({ error: "allowed is required" });
+  }
+    const result = await toggleAppRegistration({ appId, userId: user.userId , allowed});
+    
+    if (result && 'error' in (result as any)) {
+      return res.status(400).json({ error: (result as any).error });
+    }
+    
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ error: "Failed to toggle registration" });
   }
 };

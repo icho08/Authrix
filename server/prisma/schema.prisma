@@ -17,6 +17,7 @@ model Application {
   users     User[]
   requireEmailVerification Boolean  @default(false) 
   allowedDomains String[] @default([])
+  isRegistrationOpen Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

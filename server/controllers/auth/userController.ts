@@ -87,7 +87,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
 };
 
 export const getProfile = async (req: Request, res: Response) => {
-  const user = (req as any).user;
+  const user = req.user;
   if (!user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -524,5 +524,32 @@ export const deleteUserAccount = async (req : Request , res : Response)=> {
     logger.error(err); 
     return res.status(500).json({ error: "Failed to delete user account" }); 
 
+  }
+}
+
+export const updateProfile = async (req : Request , res : Response)=> { 
+  try { 
+    const user = req.user ; 
+    const applicationId = req.application?.id;
+    if(!user || !applicationId) { 
+      return res.status(401).json({ error: "Unauthorized" }); 
+    } 
+    const result = await prisma.user.update({
+      where: { id: user.userId, applicationId } ,
+      data : { 
+        username : req.body.username,
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        isVerified: true,
+        applicationId: true,
+      }
+    });
+    return res.status(200).json(result); 
+  }catch(err){ 
+    logger.error(err); 
+    return res.status(500).json({ error: "Failed to update user profile" }); 
   }
 }

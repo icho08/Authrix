@@ -9,6 +9,7 @@ interface JWTPayload {
   email: string;
   applicationId: string;
   isVerified: boolean;
+  username : string;
 }
 
 export const signAccessToken = async (payload: JWTPayload): Promise<string> => {
@@ -106,7 +107,8 @@ export const verifyRefreshToken = async (refreshToken: string, applicationId: st
       userId: session.user.id,
       email: session.user.email,
       applicationId: session.user.applicationId,
-      isVerified: session.user.isVerified
+      isVerified: session.user.isVerified, 
+      username : session.user.username
     };
   } catch {
     return null;

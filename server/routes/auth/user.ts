@@ -1,5 +1,5 @@
 import express from "express";
-import { register, getProfile, refreshToken, login, logout, logoutAll, logoutOthers, getSessions, verifyEmail, requestPasswordReset, resetPassword, changePassword} from "../../controllers/auth/userController.js";
+import { register, getProfile, refreshToken, login, logout, logoutAll, logoutOthers, getSessions, verifyEmail, requestPasswordReset, resetPassword, changePassword, updateProfile} from "../../controllers/auth/userController.js";
 import { verifyApiKey } from "../../middleware/apiAuth.js";
 import { authenticateUser } from "../../middleware/jwtAuth.js";
 import { authLimiter, loginLimiter } from "../../middleware/rateLimiter.js";
@@ -22,4 +22,5 @@ router.get("/sessions", verifyApiKey, authenticateUser, getSessions);
 router.get("/verify" , authLimiter , verifyEmail ); 
 router.post("/reset" , authLimiter , verifyApiKey , authenticateUser , changePassword );
 router.post("/delete-account" , authLimiter , verifyApiKey , authenticateUser , deleteUserAccount );
+router.patch("/update-profile" , verifyApiKey , authenticateUser , updateProfile );
 export default router;

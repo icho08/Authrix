@@ -6,6 +6,7 @@ declare global {
                 email: string;
                 applicationId: string;
                 isVerified: boolean;
+                username:string;
             }
             application?: {
                 id: string;
