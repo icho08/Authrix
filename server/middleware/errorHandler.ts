@@ -31,10 +31,13 @@ export const errorHandler = (
   }
 
   if (err.name === 'PrismaClientKnownRequestError') {
+    // Cast error to any to access prisma-specific properties
+    const prismaError = err as any;
     return res.status(400).json({
       error: {
-        code: 'DATABASE_ERROR',
-        message: 'Database operation failed',
+        code: prismaError.code,
+        message: 'Database operation failed: ' + prismaError.message,
+        meta: prismaError.meta,
         requestId
       }
     });
