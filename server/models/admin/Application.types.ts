@@ -62,3 +62,8 @@ export interface ToggleAppRegistrationParams {
   userId: string;
   allowed : boolean;
 }
+
+export interface RegenerateApiKeyParams {
+  appId: string;
+  userId: string;
+}

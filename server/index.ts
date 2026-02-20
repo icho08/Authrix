@@ -1,16 +1,19 @@
-import express from "express"; 
 import dotenv from "dotenv"; 
+dotenv.config(); 
+
+import express from "express"; 
 import bodyParser from "body-parser";
 import { logger } from "./config/logger.js";
 import admin from "./routes/admin/app.js";
+import userAdminRoutes from "./routes/admin/user.js";
 import auth from "./routes/auth/user.js";
+import payment from "./routes/paymentRoutes.js";
 import { generalLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestId } from "./middleware/requestId.js";
 import { dynamicCors } from "./middleware/dynamicCors.js";
 
 const app = express();
-dotenv.config(); 
 
 app.set('trust proxy', process.env.NODE_ENV === 'production');
 
@@ -26,7 +29,9 @@ app.get("/health" , (req , res)=> {
 }); 
 
 app.use('/api/admin/', admin); 
+app.use('/api/admin/users', userAdminRoutes);
 app.use('/api/auth/', auth); 
+app.use('/api/payment/', payment);
 
 app.use(errorHandler);
 

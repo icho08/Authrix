@@ -68,9 +68,9 @@ const winstonLogger = winston.createLogger({
 });
 
 export const logger = {
-  info: (message: any) => winstonLogger.info(message),
-  error: (message: any) => winstonLogger.error(message),
-  warn: (message: any) => winstonLogger.warn(message),
-  debug: (message: any) => winstonLogger.debug(message),
-  success: (message: any) => winstonLogger.info(message) // Map success to info
+  info: (message: any, meta?: any) => winstonLogger.info(message, meta),
+  error: (message: any, meta?: any) => winstonLogger.error(message, meta),
+  warn: (message: any, meta?: any) => winstonLogger.warn(message, meta),
+  debug: (message: any, meta?: any) => winstonLogger.debug(message, meta),
+  success: (message: any, meta?: any) => winstonLogger.info(message, meta) 
 };

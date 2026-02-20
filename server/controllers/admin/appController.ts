@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
-import { createApplication, deleteApp, getApplicationUsers, getUserApplication, updateApplicationSettings, addAllowedDomain, removeAllowedDomain, getActiveSessions as getActiveAppSessions, toggleAppRegistration } from '../../models/admin/Application.js';
+import { createApplication, deleteApp, getApplicationUsers, getUserApplications, updateApplicationSettings, addAllowedDomain, removeAllowedDomain, getActiveSessions as getActiveAppSessions, toggleAppRegistration, regenerateApiKey as regenerateAppKey } from '../../models/admin/Application.js';
 import { logger } from '../../config/logger.js';
 import prisma from '../../config/prisma.js';
+import * as urlscanService from "../../utils/urlscanService.js";
+import * as aiService from "../../utils/aiService.js";
+import { submitScan, getScanResult } from '../../utils/urlscanService.js';
 
 export const createApp = async (req: Request, res: Response) => {  
  try {  
@@ -25,27 +28,23 @@ export const createApp = async (req: Request, res: Response) => {
 }
 };
 
-export const getMyApp = async (req: Request, res: Response) => {
+export const getMyApps = async (req: Request, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const app = await getUserApplication(user.userId);
+    const apps = await getUserApplications(user.userId);
 
-    if (!app) {
-      return res.status(200).json({ app: null });
+    if (apps && 'error' in (apps as any)) {
+      return res.status(500).json({ error: (apps as any).error });
     }
 
-    if ('error' in (app as any)) {
-      return res.status(500).json({ error: (app as any).error });
-    }
-
-    return res.status(200).json({ app });
+    return res.status(200).json(apps);
   } catch (err: any) {
     logger.error(err);
-    return res.status(500).json({ error: "something went wrong while fetching app" });
+    return res.status(500).json({ error: "something went wrong while fetching apps" });
   }
 };
 
@@ -278,5 +277,122 @@ export const toggleRegistration = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error(error);
     res.status(500).json({ error: "Failed to toggle registration" });
+  }
+};
+
+export const startVulnerabilityScan = async (req: Request, res: Response) => {
+  try {
+    const { appId, domain } = req.body;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (!appId || !domain) {
+      return res.status(400).json({ error: "appId and domain are required" });
+    }
+
+    // Verify application ownership and domain
+    const app = await prisma.application.findFirst({
+      where: {
+        id: appId,
+        userId: user.userId,
+      },
+    });
+
+    if (!app) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    if (!app.allowedDomains.includes(domain)) {
+      return res.status(400).json({ error: "Domain not found in allowed domains" });
+    }
+
+    const scanResponse = await submitScan(domain, 'unlisted');
+    res.status(200).json({
+      message: "Scan started successfully",
+      scanId: scanResponse.uuid,
+      apiEndpoint: scanResponse.api,
+      resultUrl: scanResponse.result,
+    });
+  } catch (error: any) {
+    logger.error(`Vulnerability scan error: ${error.message}`);
+    res.status(500).json({ error: error.message || "Failed to start vulnerability scan" });
+  }
+};
+
+export const fetchScanResult = async (req: Request, res: Response) => {
+  try {
+    const { scanId } = req.params;
+    if (!scanId) {
+      return res.status(400).json({ error: "scanId is required" });
+    }
+
+    const result = await getScanResult(scanId);
+    res.status(200).json(result);
+  } catch (error: any) {
+    // urlscan.io might return 404 while scan is still in progress
+    if (error.response && error.response.status === 404) {
+      return res.status(202).json({ message: "Scan is still in progress" });
+    }
+    logger.error(`Error fetching scan result: ${error.message}`);
+    res.status(500).json({ error: "Failed to fetch scan results" });
+  }
+};
+
+export const analyzeVulnerability = async (req: Request, res: Response) => {
+  try {
+    const { scanId } = req.body;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (!scanId) {
+      return res.status(400).json({ error: "scanId is required" });
+    }
+
+    // 1. Fetch the scan result data
+    const scanData = await getScanResult(scanId);
+
+    if (!scanData || scanData.message === "Scan is still in progress") {
+      return res.status(400).json({ error: "Scan is still in progress. Please wait for completion before analysis." });
+    }
+
+    // 2. Pass data to AI for suggestions
+    const aiResponse = await aiService.generateSecurityAdvice(scanData);
+
+    res.status(200).json(aiResponse);
+  } catch (error: any) {
+    logger.error(`AI analysis error: ${error.message}`);
+    res.status(500).json({ error: error.message || "Failed to generate AI analysis" });
+  }
+};
+
+export const regenerateKey = async (req: Request, res: Response) => {
+  try {
+    const { appId } = req.body;
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    if (!appId) {
+      return res.status(400).json({ error: "appId is required" });
+    }
+    
+    const result = await regenerateAppKey({ appId, userId: user.userId });
+    
+    if (result && 'error' in (result as any)) {
+      return res.status(400).json({ error: (result as any).error });
+    }
+    
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ error: "Failed to regenerate API key" });
   }
 };

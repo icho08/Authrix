@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,52 +6,135 @@ datasource db {
   provider = "postgresql"
 }
 
-model Application {
-  id        String   @id @default(cuid())
-  name      String
-  apiKey    String   @unique
-  secretKey String
-  userId    String
-  users     User[]
-  requireEmailVerification Boolean  @default(false) 
-  allowedDomains String[] @default([])
-  isRegistrationOpen Boolean @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Transaction {
+  id              String            @id @default(cuid())
+  amount          Float
+  status          TransactionStatus @default(PENDING)
+  transactionUuid String            @unique
+  transactionCode String?           @unique
+  productCode     String
+  userId          String
+  applicationId   String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  user            User              @relation(fields: [userId], references: [id])
 }
+
+model Application {
+  id                       String   @id @default(cuid())
+  name                     String
+  apiKey                   String   @unique
+  secretKey                String
+  userId                   String
+  requireEmailVerification Boolean  @default(false)
+  allowedDomains           String[] @default([])
+  isRegistrationOpen       Boolean  @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  users                    User[]
+}
+
 model User {
-  id                   String      @id @default(cuid())
-  username             String 
-  email                String
-  password             String
-  isVerified           Boolean     @default(false)
-  verificationToken    String?
-  verificationExpiry   DateTime?
-  resetToken           String?
-  resetTokenExpiry     DateTime?
-  applicationId        String
-  application          Application @relation(fields: [applicationId], references: [id])
-  sessions             Session[]
-  createdAt            DateTime    @default(now())
-  updatedAt            DateTime    @updatedAt
-  
+  id                 String         @id @default(cuid())
+  username           String
+  email              String
+  password           String
+  isVerified         Boolean        @default(false)
+  verificationToken  String?
+  verificationExpiry DateTime?
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  applicationId      String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  plan               Plan           @default(FREE)
+  sessions           Session[]
+  transactions       Transaction[]
+  conversations      Conversation[]
+  application        Application    @relation(fields: [applicationId], references: [id])
 
   @@unique([email, applicationId])
 }
 
 model Session {
-  id           String    @id @default(cuid())
+  id           String   @id @default(cuid())
   userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  refreshToken String    @unique
+  refreshToken String   @unique
   deviceName   String?
   browser      String?
   os           String?
   deviceType   String?
   location     String?
   ipAddress    String?
-  isActive     Boolean   @default(true)
+  isActive     Boolean  @default(true)
   expiresAt    DateTime
-  createdAt    DateTime  @default(now())
-  lastUsedAt   DateTime  @default(now())
+  createdAt    DateTime @default(now())
+  lastUsedAt   DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Staff {
+  id            String         @id @default(cuid())
+  username      String         @unique
+  email         String         @unique
+  password      String
+  role          StaffRole      @default(MODERATOR)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  conversations Conversation[]
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  userId    String
+  staffId   String?
+  subject   String?
+  status    ChatStatus @default(AI_FIRST)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id])
+  staff     Staff?    @relation(fields: [staffId], references: [id])
+  messages  Message[]
+}
+
+model Message {
+  id             String     @id @default(cuid())
+  conversationId String
+  content        String     @db.Text
+  senderType     SenderType
+  senderId       String?    // Nullable for AI
+  createdAt      DateTime   @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
+
+enum StaffRole {
+  ADMIN
+  MODERATOR
+}
+
+enum ChatStatus {
+  AI_FIRST
+  STAFF_REQUIRED
+  ACTIVE
+  CLOSED
+}
+
+enum SenderType {
+  USER
+  STAFF
+  AI
+}
+
+enum Plan {
+  FREE
+  STARTER
+  PRO
+  BUSINESS
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETE
+  FAILED
+  CANCELED
 }

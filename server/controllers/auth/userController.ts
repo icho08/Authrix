@@ -6,6 +6,7 @@ import { ValidationError } from '../../utils/errors.js';
 import jwt from 'jsonwebtoken';
 import prisma from '../../config/prisma.js';
 import { SendPasswordResetEmail } from '../../utils/emailService.js';
+import { USER_LIMITS } from '../../models/admin/Application.js';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -17,6 +18,33 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     
     if (!email || !password || !username) {
       throw new ValidationError("Email, password, and username are required");
+    }
+
+    // Check user limits based on developer's plan
+    const app = (req as any).application;
+    const developer = await prisma.user.findUnique({
+      where: { id: app.userId },
+      select: { plan: true }
+    });
+
+    if (!developer) {
+      throw new ValidationError("Developer not found");
+    }
+
+    const apps = await prisma.application.findMany({
+      where: { userId: app.userId },
+      select: { id: true }
+    });
+
+    const appIds = apps.map((a: any) => a.id);
+    const totalUserCount = await prisma.user.count({
+      where: { applicationId: { in: appIds } }
+    });
+
+    const limit = USER_LIMITS[developer.plan as keyof typeof USER_LIMITS] || 1000;
+
+    if (totalUserCount >= limit) {
+      throw new ValidationError(`This application has reached its user limit of ${limit.toLocaleString()} users for the ${developer.plan} plan.`);
     }
     
     const result = await createUser({

@@ -11,8 +11,23 @@ import {
   ApplicationResponse,
   ManageDomainsParams,
   GetActiveSessionsParams,
-  ToggleAppRegistrationParams
+  ToggleAppRegistrationParams,
+  RegenerateApiKeyParams
 } from "./Application.types.js";
+
+const PLAN_LIMITS = {
+  FREE: 1,
+  STARTER: 2,
+  PRO: 5,
+  BUSINESS: 20
+};
+
+export const USER_LIMITS = {
+  FREE: 1000,
+  STARTER: 5000,
+  PRO: 25000,
+  BUSINESS: Infinity
+};
 
 
 export const createApplication = async (params: CreateApplicationParams): Promise<ApplicationResponse> => {
@@ -23,13 +38,26 @@ export const createApplication = async (params: CreateApplicationParams): Promis
       return { error: "name is required" };
     }
 
-    // Only allow one application per user
-    const existing = await prisma.application.findFirst({
+    // Check application limits based on user's plan
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true }
+    });
+
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    const appCount = await prisma.application.count({
       where: { userId }
     });
 
-    if (existing) {
-      return { error: "You already have an application" };
+    const limit = PLAN_LIMITS[user.plan as keyof typeof PLAN_LIMITS] || 1;
+
+    if (appCount >= limit) {
+      return { 
+        error: `You have reached the limit of ${limit} application(s) for the ${user.plan} plan. Please upgrade to create more.` 
+      };
     }
 
     const apiKey = `ak_${nanoid()}`;
@@ -47,9 +75,9 @@ export const createApplication = async (params: CreateApplicationParams): Promis
   }
 };
 
-export const getUserApplication = async (userId: string) => {
+export const getUserApplications = async (userId: string) => {
   try {
-    const app = await prisma.application.findFirst({
+    const apps = await prisma.application.findMany({
       where: { userId },
       select: {
         id: true,
@@ -61,13 +89,49 @@ export const getUserApplication = async (userId: string) => {
         createdAt: true,
         updatedAt: true, 
         isRegistrationOpen : true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true }
+    });
+
+    const totalUsers = await prisma.user.count({
+      where: { application: { userId } }
+    });
+
+    return {
+      apps,
+      plan: user?.plan || 'FREE',
+      totalUsers,
+      userLimits: USER_LIMITS
+    };
+  } catch (err: any) {
+    logger.error(err);
+    return { error: "Failed to fetch applications" };
+  }
+};
+
+export const getTotalUserCountAcrossApps = async (userId: string) => {
+  try {
+    const apps = await prisma.application.findMany({
+      where: { userId },
+      select: { id: true }
+    });
+
+    const appIds = apps.map((app: any) => app.id);
+    
+    const totalUsers = await prisma.user.count({
+      where: {
+        applicationId: { in: appIds }
       }
     });
 
-    return app;
+    return totalUsers;
   } catch (err: any) {
     logger.error(err);
-    return { error: "Failed to fetch application" };
+    throw err;
   }
 };
 
@@ -112,7 +176,7 @@ export const updateApplicationSettings = async (params: UpdateApplicationSetting
       where: { id: appId, userId },
       data: settings,
       select: { id: true, name: true, requireEmailVerification: true, allowedDomains: true }
-    });
+    }) as any;
     
     return updatedApp;
   } catch (err: any) {
@@ -252,7 +316,7 @@ export const removeAllowedDomain = async (params: ManageDomainsParams) => {
     const updatedApp = await prisma.application.update({
       where: { id: appId, userId },
       data: {
-        allowedDomains: app.allowedDomains.filter(d => d !== domain)
+        allowedDomains: app.allowedDomains.filter((d: string) => d !== domain)
       },
       select: { allowedDomains: true }
     });
@@ -340,5 +404,35 @@ export const toggleAppRegistration = async (params: ToggleAppRegistrationParams)
   } catch (err: any) {
     logger.error(err);
     return { error: "Failed to toggle registration" };
+  }
+};
+
+export const regenerateApiKey = async (params: RegenerateApiKeyParams) => {
+  const { appId, userId } = params;
+  
+  try {
+    const app = await prisma.application.findFirst({
+      where: { id: appId, userId },
+      select: { id: true }
+    });
+    
+    if (!app) {
+      return { error: "App not found or unauthorized" };
+    }
+    
+    const newApiKey = `ak_${nanoid()}`;
+    
+    const updatedApp = await prisma.application.update({
+      where: { id: appId, userId },
+      data: {
+        apiKey: newApiKey
+      },
+      select: { apiKey: true }
+    });
+    
+    return { apiKey: updatedApp.apiKey };
+  } catch (err: any) {
+    logger.error(err);
+    return { error: "Failed to regenerate API key" };
   }
 };
