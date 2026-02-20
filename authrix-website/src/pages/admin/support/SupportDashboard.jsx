@@ -144,8 +144,7 @@ const SupportDashboard = () => {
   };
 
   const handleLogout = () => {
-    staffApi.logout();
-    navigate("/staff/login");
+    navigate("/");
   };
 
   const filteredTickets = tickets.filter(

@@ -126,8 +126,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/staff/login" element={<StaffLogin />} />
-            <Route path="/staff/support" element={<SupportDashboard />} />
+            <Route
+              path="/staff/support"
+              element={
+                <ProtectedRoute>
+                  <SupportDashboard />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </Router>
         <Toaster

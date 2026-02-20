@@ -1,13 +1,18 @@
 const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
-const getStaffToken = () => {
-  const cookies = document.cookie.split(';')
-  const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('staff_access_token='))
-  return tokenCookie ? tokenCookie.split('=')[1] : null
+const getAccessToken = () => {
+  const nameEQ = "auth_access_token=";
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
 }
 
 const staffRequest = async (endpoint, options = {}) => {
-  const token = getStaffToken()
+  const token = getAccessToken()
   
   const response = await fetch(`${baseUrl}${endpoint}`, {
     headers: {
@@ -27,15 +32,6 @@ const staffRequest = async (endpoint, options = {}) => {
 }
 
 export const staffApi = {
-  login: async (email, password) => {
-    const res = await staffRequest('/api/staff/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password })
-    })
-    // Set cookie
-    document.cookie = `staff_access_token=${res.token}; path=/; max-age=86400; SameSite=Lax`
-    return res
-  },
 
   getTickets: () => staffRequest('/api/staff/tickets'),
   
@@ -52,6 +48,6 @@ export const staffApi = {
   }),
 
   logout: () => {
-    document.cookie = 'staff_access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    // Standard logout handles everything
   }
 }

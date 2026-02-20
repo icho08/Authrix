@@ -1,4 +1,4 @@
-import CodeBlock from '../../components/CodeBlock'
+import CodeBlock from "../../components/CodeBlock";
 
 export default function ReactHooks() {
   return (
@@ -6,24 +6,25 @@ export default function ReactHooks() {
       <div>
         <h1 className="text-3xl font-semibold mb-4">React Hooks</h1>
         <p className="text-muted-foreground mb-6">
-          Use the useAuth hook for seamless authentication state management in React components.
+          Use the useAuth hook for seamless authentication state management in
+          React components.
         </p>
       </div>
 
       <div>
         <h2 className="text-xl font-medium mb-3">useAuth Hook</h2>
         <CodeBlock>
-{`import { useAuth } from 'authrix-sdk';
+          {`import { useAuth } from 'authrix-sdk';
 
 function MyComponent() {
   const {
-    user,           // Current user object or null
-    loading,        // Loading state boolean
-    login,          // Login function
-    register,       // Register function
-    logout,         // Logout function
-    logoutAll,      // Logout from all devices
-    isAuthenticated // Boolean authentication status
+    user,           // Current user profile or null
+    loading,        // Authentication loading state
+    login,          // Login method (data: LoginData)
+    register,       // Registration method (data: RegisterData)
+    logout,         // Logout from current session
+    logoutAll,      // Logout from all active sessions
+    isAuthenticated // Client-side authentication status
   } = useAuth();
 }`}
         </CodeBlock>
@@ -35,7 +36,7 @@ function MyComponent() {
           Wrap your app with AuthProvider to enable authentication context.
         </p>
         <CodeBlock>
-{`import { AuthProvider, AuthClient } from 'authrix-sdk';
+          {`import { AuthProvider, AuthClient } from 'authrix-sdk';
 
 const client = new AuthClient({
   apiKey: 'your-api-key', 
@@ -60,7 +61,7 @@ function App() {
       <div>
         <h2 className="text-xl font-medium mb-3">Complete Example</h2>
         <CodeBlock>
-{`import { useAuth } from 'authrix-sdk';
+          {`import { useAuth } from 'authrix-sdk';
 import { useState } from 'react';
 
 function AuthComponent() {
@@ -122,5 +123,5 @@ function AuthComponent() {
         </CodeBlock>
       </div>
     </div>
-  )
+  );
 }
