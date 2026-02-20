@@ -22,9 +22,7 @@ export const signAccessToken = async (payload: JWTPayload): Promise<string> => {
   return jwt.sign(payload, app.secretKey, { expiresIn: '15m' });
 };
 
-export const signStaffToken = async (payload: { userId: string, role: string }): Promise<string> => {
-  return jwt.sign(payload, process.env.JWT_SECRET || 'authrix-internal-secret', { expiresIn: '1d' });
-};
+// Obsolete: signStaffToken removed as we use unified user tokens
 
 export const signRefreshToken = async (userId: string, applicationId: string, userAgent?: string, ipAddress?: string): Promise<string> => {
   const refreshToken = crypto.randomBytes(64).toString('hex');
@@ -52,9 +50,11 @@ export const signRefreshToken = async (userId: string, applicationId: string, us
   return refreshToken;
 };
 
-export const verifyAccessToken = async (token: string, applicationId: string): Promise<JWTPayload | null> => {
+export const verifyAccessToken = async (token: string, applicationId?: string): Promise<JWTPayload | null> => {
   try {
-    const app = await getAppById(applicationId);
+    const app = applicationId 
+      ? await getAppById(applicationId)
+      : await prisma.application.findUnique({ where: { apiKey: 'ak_KJ7OIyN1kYPShKLmdc6Aj' } });
     
     if (!app) {
       return null;
@@ -80,14 +80,7 @@ export const verifyAccessToken = async (token: string, applicationId: string): P
   }
 };
 
-export const verifyStaffToken = async (token: string): Promise<{ userId: string, role: string } | null> => {
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || 'authrix-internal-secret') as { userId: string, role: string };
-    return payload;
-  } catch {
-    return null;
-  }
-};
+// Obsolete: verifyStaffToken removed
 
 export const verifyRefreshToken = async (refreshToken: string, applicationId: string): Promise<JWTPayload | null> => {
   try {

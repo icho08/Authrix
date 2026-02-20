@@ -9,25 +9,29 @@ export const authenticateStaff = async (req: Request, res: Response, next: NextF
     const token = authHeader && authHeader.split(' ')[1];
     
     if (!token) {
-      return res.status(401).json({ error: "Staff token required" });
+      return res.status(401).json({ error: "Access token required" });
     }
     
-    // Using verifyStaffToken for internal staff tokens
-    const payload = await verifyStaffToken(token);
+    // Verify standard access token
+    const payload = await verifyAccessToken(token);
     
     if (!payload) {
-      return res.status(401).json({ error: "Invalid staff token" });
+      return res.status(401).json({ error: "Invalid or expired token" });
     }
     
+    // Check if the user is a staff member
     const staff = await prisma.staff.findUnique({
-      where: { id: payload.userId }
+      where: { userId: payload.userId },
+      include: { user: true }
     });
     
     if (!staff) {
-      return res.status(401).json({ error: "Staff member not found" });
+      // User is not staff, return 404 as requested to hide the route
+      return res.status(404).json({ error: "Resource not found" });
     }
     
     (req as any).staff = staff;
+    (req as any).user = staff.user; // Also attach user info
     next();
   } catch (error) {
     logger.error("Staff auth error:", error);

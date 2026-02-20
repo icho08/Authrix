@@ -48,9 +48,10 @@ model User {
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   plan               Plan           @default(FREE)
-  sessions           Session[]
-  transactions       Transaction[]
   conversations      Conversation[]
+  sessions           Session[]
+  staffProfile       Staff?
+  transactions       Transaction[]
   application        Application    @relation(fields: [applicationId], references: [id])
 
   @@unique([email, applicationId])
@@ -75,35 +76,34 @@ model Session {
 
 model Staff {
   id            String         @id @default(cuid())
-  username      String         @unique
-  email         String         @unique
-  password      String
   role          StaffRole      @default(MODERATOR)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  userId        String         @unique
   conversations Conversation[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Conversation {
-  id        String    @id @default(cuid())
+  id        String     @id @default(cuid())
   userId    String
   staffId   String?
   subject   String?
   status    ChatStatus @default(AI_FIRST)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  user      User      @relation(fields: [userId], references: [id])
-  staff     Staff?    @relation(fields: [staffId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  staff     Staff?     @relation(fields: [staffId], references: [id])
+  user      User       @relation(fields: [userId], references: [id])
   messages  Message[]
 }
 
 model Message {
-  id             String     @id @default(cuid())
+  id             String       @id @default(cuid())
   conversationId String
-  content        String     @db.Text
+  content        String
   senderType     SenderType
-  senderId       String?    // Nullable for AI
-  createdAt      DateTime   @default(now())
+  senderId       String?
+  createdAt      DateTime     @default(now())
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
 
