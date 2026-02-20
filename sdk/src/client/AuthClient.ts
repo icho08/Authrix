@@ -207,4 +207,26 @@ export class AuthClient {
       body: JSON.stringify(data),
     }, this.accessToken);
   }
+
+  // Admin User Management
+  async sendUserEmail(userId: string, subject: string, body: string): Promise<{ message: string }> {
+    return this.http.request<{ message: string }>('/api/admin/users/send-email', {
+      method: 'POST',
+      body: JSON.stringify({ userId, subject, body }),
+    }, this.accessToken);
+  }
+
+  async resetUserPassword(userId: string, newPassword: string): Promise<{ message: string }> {
+    return this.http.request<{ message: string }>('/api/admin/users/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ userId, newPassword }),
+    }, this.accessToken);
+  }
+
+  async deleteUser(userId: string): Promise<{ message: string }> {
+    return this.http.request<{ message: string }>('/api/admin/users/delete', {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    }, this.accessToken);
+  }
 }
