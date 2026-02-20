@@ -48,7 +48,7 @@ export const adminApi = {
     }
   },
 
-  getMyApp: () => apiRequest('/api/admin/apps/me'),
+  getMyApps: () => apiRequest('/api/admin/apps/me'),
 
   updateAppSettings: (appId, settings) => apiRequest('/api/admin/apps/update-settings', {
     method: 'POST',
@@ -99,5 +99,78 @@ export const adminApi = {
   toggleRegistration: (appId, allowed) => apiRequest('/api/admin/apps/toggle-registration', {
     method: 'POST',
     body: JSON.stringify({ appId, allowed })
+  }),
+  startVulnerabilityScan: (appId, domain) => apiRequest('/api/admin/apps/vulnerability/scan', {
+    method: 'POST',
+    body: JSON.stringify({ appId, domain })
+  }),
+  getVulnerabilityScanResult: (scanId) => apiRequest(`/api/admin/apps/vulnerability/result/${scanId}`, {
+    method: 'GET'
+  }),
+  analyzeVulnerabilityScan: (scanId) => apiRequest('/api/admin/apps/vulnerability/analyze', {
+    method: 'POST',
+    body: JSON.stringify({ scanId })
+  }),
+
+  // User Management
+  sendCustomEmail: (appId, userId, subject, body) => apiRequest('/api/admin/users/send-email', {
+    method: 'POST',
+    body: JSON.stringify({ appId, userId, subject, body })
+  }),
+
+  resetUserPassword: (appId, userId, newPassword) => apiRequest('/api/admin/users/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ appId, userId, newPassword })
+  }),
+
+  toggleUserVerification: (appId, userId, isVerified) => apiRequest('/api/admin/users/toggle-verification', {
+    method: 'POST',
+    body: JSON.stringify({ appId, userId, isVerified })
+  }),
+
+  deleteAppUser: (appId, userId) => apiRequest('/api/admin/users/delete', {
+    method: 'POST',
+    body: JSON.stringify({ appId, userId })
+  }),
+
+  regenerateApiKey: (appId) => apiRequest('/api/admin/apps/regenerate-api-key', {
+    method: 'POST',
+    body: JSON.stringify({ appId })
+  }),
+
+  exportUsers: async (appId) => {
+    const token = getAuthToken()
+    const response = await fetch(`${baseUrl}/api/admin/users/export`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      },
+      body: JSON.stringify({ appId })
+    })
+
+    if (!response.ok) throw new Error('Export failed')
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `users_export_${new Date().getTime()}.csv`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  },
+
+  // Generic helpers
+  get: (endpoint) => apiRequest(endpoint, { method: 'GET' }),
+  post: (endpoint, data) => apiRequest(endpoint, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+
+  closeConversation: (conversationId) => apiRequest('/api/chat/close', {
+    method: 'POST',
+    body: JSON.stringify({ conversationId })
   })
 }

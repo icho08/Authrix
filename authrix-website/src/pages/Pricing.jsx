@@ -1,7 +1,19 @@
 import { Shield, ArrowRight, Check, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import Header from "../components/Header";
+
 // Pricing Card Component
-function PricingCard({ plan, price, apps, features, popular, buttonText }) {
+function PricingCard({
+  plan,
+  price,
+  apps,
+  features,
+  popular,
+  buttonText,
+  free,
+}) {
+  const link = plan === "Free" ? "/dashboard" : `/checkout?plan=${plan}`;
+
   return (
     <div
       className={`relative bg-card border rounded-2xl p-8 flex flex-col ${popular ? "border-foreground shadow-xl scale-105" : "border-border"}`}
@@ -35,9 +47,9 @@ function PricingCard({ plan, price, apps, features, popular, buttonText }) {
         {features.map((feature, index) => (
           <li key={index} className="flex items-start gap-3">
             {feature.included ? (
-              <Check className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+              <Check className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
             ) : (
-              <X className="w-5 h-5 text-muted-foreground/40 flex-shrink-0 mt-0.5" />
+              <X className="w-5 h-5 text-muted-foreground/40 shrink-0 mt-0.5" />
             )}
             <span
               className={`text-sm ${feature.included ? "text-foreground" : "text-muted-foreground/60"}`}
@@ -48,8 +60,8 @@ function PricingCard({ plan, price, apps, features, popular, buttonText }) {
         ))}
       </ul>
 
-      <a
-        href="/register"
+      <Link
+        to={link}
         className={`w-full py-3 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
           popular
             ? "bg-foreground text-background hover:bg-foreground/90"
@@ -58,7 +70,7 @@ function PricingCard({ plan, price, apps, features, popular, buttonText }) {
       >
         {buttonText}
         <ArrowRight className="w-4 h-4" />
-      </a>
+      </Link>
     </div>
   );
 }

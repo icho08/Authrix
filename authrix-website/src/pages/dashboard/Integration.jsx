@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,14 +22,33 @@ import {
   Rocket,
   Play,
 } from "lucide-react";
+import { adminApi } from "@/utils/adminApi";
 
 export default function Integration() {
   const [copied, setCopied] = useState(null);
+  const [app, setApp] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const app = {
-    apiKey: "ax_live_1234567890abcdef",
+  useEffect(() => {
+    loadApp();
+  }, []);
+
+  const loadApp = async () => {
+    try {
+      const result = await adminApi.getMyApps();
+      const userApps = result.apps || [];
+      const selectedId = localStorage.getItem("selectedAppId");
+      const currentApp =
+        userApps.find((a) => a.id === selectedId) || userApps[0];
+      setApp(currentApp);
+    } catch (error) {
+      console.error("Failed to load app:", error);
+    } finally {
+      setLoading(false);
+    }
   };
-  const baseUrl = "";
+
+  const baseUrl = window.location.origin;
 
   const copyToClipboard = async (text, id) => {
     await navigator.clipboard.writeText(text);
@@ -59,8 +78,35 @@ export default function Integration() {
     </div>
   );
 
-  const installCode = `npm install authrix-sdk`;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+          <span className="text-muted-foreground text-sm">
+            Loading integration guide...
+          </span>
+        </div>
+      </div>
+    );
+  }
 
+  if (!app) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <div className="w-16 h-16 mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
+          <Rocket className="w-8 h-8 text-primary" />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">No Application Selected</h2>
+        <p className="text-muted-foreground mb-6 max-w-sm">
+          Please create or select an application from the sidebar to view the
+          integration guide.
+        </p>
+      </div>
+    );
+  }
+
+  const installCode = `npm install authrix-sdk`;
   const initCode = `import { AuthClient } from 'authrix-sdk';
 
 const authClient = new AuthClient({
@@ -150,10 +196,10 @@ function App() {
 
       {/* Video Tutorial */}
       <Card className="overflow-hidden border-border/30 bg-card/30 backdrop-blur-sm group cursor-pointer relative hover:border-primary/50 transition-colors duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
         <div className="aspect-video w-full bg-muted/30 flex items-center justify-center relative overflow-hidden">
           {/* Placeholder Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5" />
+          <div className="absolute inset-0 bg-linear-to-br from-violet-500/5 to-fuchsia-500/5" />
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1607799275518-d58665d099db?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-overlay" />
 
           <div className="absolute inset-0 flex items-center justify-center">

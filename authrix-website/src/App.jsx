@@ -19,6 +19,12 @@ import Users from "./pages/dashboard/Users";
 import Integration from "./pages/dashboard/Integration";
 import Settings from "./pages/dashboard/Settings";
 import UserSettings from "./pages/dashboard/UserSettings";
+import Vulnerability from "./pages/dashboard/Vulnerability";
+import CheckoutPage from "./pages/CheckoutPage";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
+import StaffLogin from "./pages/admin/support/StaffLogin";
+import SupportDashboard from "./pages/admin/support/SupportDashboard";
 
 function App() {
   return (
@@ -31,6 +37,9 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-failure" element={<PaymentFailure />} />
             <Route path="/docs" element={<DocsLayout />} />
             <Route path="/docs/:id" element={<DocsLayout />} />
             <Route
@@ -98,6 +107,16 @@ function App() {
               }
             />
             <Route
+              path="/dashboard/vulnerability"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <Vulnerability />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/dashboard/account"
               element={
                 <ProtectedRoute>
@@ -107,6 +126,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/staff/login" element={<StaffLogin />} />
+            <Route path="/staff/support" element={<SupportDashboard />} />
           </Routes>
         </Router>
         <Toaster

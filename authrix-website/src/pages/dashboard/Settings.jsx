@@ -37,6 +37,8 @@ import {
   Clock,
   UserPlus,
   Zap,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../../contexts/AuthContext";
@@ -54,24 +56,32 @@ export default function Settings() {
     registrationAllowed: false,
   });
 
+  const [regenerating, setRegenerating] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
+
   useEffect(() => {
     loadUserApp();
   }, []);
 
   const loadUserApp = async () => {
     try {
-      const result = await adminApi.getMyApp();
-      setApp(result.app);
-      console.log(result);
-      if (result.app) {
+      const result = await adminApi.getMyApps();
+      const userApps = result.apps || [];
+      const selectedId = localStorage.getItem("selectedAppId");
+      const currentApp =
+        userApps.find((a) => a.id === selectedId) || userApps[0];
+
+      setApp(currentApp);
+
+      if (currentApp) {
         setSettings({
-          appName: result.app.name,
-          requireEmailVerification: result.app.requireEmailVerification,
-          registrationAllowed: result.app.isRegistrationOpen,
+          appName: currentApp.name,
+          requireEmailVerification: currentApp.requireEmailVerification,
+          registrationAllowed: currentApp.isRegistrationOpen,
         });
       }
     } catch (error) {
-      console.error("Failed to load app:", error);
+      console.error("Failed to load apps:", error);
     } finally {
       setLoading(false);
     }
@@ -126,6 +136,25 @@ export default function Settings() {
     } catch (error) {
       console.error("Failed to toggle registration:", error);
       toast.error(error.message || "Failed to toggle registration");
+    }
+  };
+
+  const handleRegenerateApiKey = async () => {
+    if (!app) return;
+
+    setRegenerating(true);
+    try {
+      const result = await adminApi.regenerateApiKey(app.id);
+      setApp((prev) => ({
+        ...prev,
+        apiKey: result.apiKey,
+      }));
+      toast.success("API Key regenerated successfully!");
+    } catch (error) {
+      console.error("Failed to regenerate API key:", error);
+      toast.error(error.message || "Failed to regenerate API key");
+    } finally {
+      setRegenerating(false);
     }
   };
 
@@ -263,11 +292,120 @@ export default function Settings() {
         <Separator className="opacity-50" />
       </Card>
 
-      {/* Domain Management */}
+      {/* API Configuration */}
+      <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 ring-1 ring-amber-500/20">
+              <Shield className="h-5 w-5 text-amber-500" />
+            </div>
+            <div>
+              <CardTitle>API Configuration</CardTitle>
+              <CardDescription>
+                Manage your application's API credentials
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <Separator className="opacity-50" />
+        <CardContent className="pt-6 space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Current API Key</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    readOnly
+                    type={showApiKey ? "text" : "password"}
+                    value={app.apiKey}
+                    className="font-mono bg-muted/50 border-border/50 pr-10"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                  >
+                    {showApiKey ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(app.apiKey);
+                    toast.success("Copied to clipboard!");
+                  }}
+                  className="shrink-0 h-9"
+                >
+                  Copy
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                This key is used to authenticate requests to the Authrix API.
+              </p>
+            </div>
+
+            <Separator className="opacity-30" />
+
+            <div className="flex items-center justify-between p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+              <div className="space-y-0.5">
+                <p className="font-medium text-sm">Regenerate API Key</p>
+                <p className="text-xs text-muted-foreground mt-0.5 max-w-md">
+                  Rotating your API key will immediately invalidate the old one.
+                  Your existing integrations will stop working until updated.
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+                    disabled={regenerating}
+                  >
+                    {regenerating ? (
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                    Regenerate
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-amber-500" />
+                      Rotate API Key?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action will permanently invalidate your current API
+                      key. Any services using this key will experience downtime
+                      until they are updated with the new key.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleRegenerateApiKey}
+                      className="bg-amber-500 text-white hover:bg-amber-600"
+                    >
+                      Yes, Regenerate Key
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       <DomainManagement app={app} onUpdate={setApp} />
 
       {/* Coming Soon Features */}
-      <Card className="border-border/30 bg-card/30 backdrop-blur-sm">
+      {/* <Card className="border-border/30 bg-card/30 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 ring-1 ring-violet-500/20">
@@ -328,7 +466,7 @@ export default function Settings() {
             </Badge>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Danger Zone */}
       <Card className="border-destructive/30 bg-destructive/[0.02]">

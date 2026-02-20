@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -33,14 +43,20 @@ import {
   Bell,
   ChevronRight,
   Sparkles,
+  ChevronsUpDown,
+  Plus,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { adminApi } from "@/utils/adminApi";
+import toast from "react-hot-toast";
+import ChatBox from "./chat/ChatBox";
 
 const navigation = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { name: "Users", href: "/dashboard/users", icon: Users },
   { name: "Integration", href: "/dashboard/integration", icon: Code2 },
+  { name: "Vulnerability", href: "/dashboard/vulnerability", icon: Shield },
   { name: "App Settings", href: "/dashboard/settings", icon: Settings },
   { name: "Account", href: "/dashboard/account", icon: User },
 ];
@@ -51,6 +67,70 @@ export default function DashboardLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [apps, setApps] = useState([]);
+  const [selectedAppId, setSelectedAppId] = useState(
+    localStorage.getItem("selectedAppId"),
+  );
+  const [fetchingApps, setFetchingApps] = useState(true);
+  const [showCreateApp, setShowCreateApp] = useState(false);
+  const [newAppName, setNewAppName] = useState("");
+  const [creatingApp, setCreatingApp] = useState(false);
+
+  useEffect(() => {
+    loadApps();
+  }, []);
+
+  const loadApps = async () => {
+    try {
+      setFetchingApps(true);
+      const result = await adminApi.getMyApps();
+      const userApps = result.apps || [];
+      setApps(userApps);
+
+      if (userApps.length > 0) {
+        // If no app selected or selected app no longer exists, default to first app
+        if (!selectedAppId || !userApps.find((a) => a.id === selectedAppId)) {
+          handleAppChange(userApps[0].id);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load apps:", error);
+    } finally {
+      setFetchingApps(false);
+    }
+  };
+
+  const handleAppChange = (appId) => {
+    if (appId === selectedAppId) return;
+    localStorage.setItem("selectedAppId", appId);
+    setSelectedAppId(appId);
+    // Reload to ensure all components re-fetch for the new appId
+    window.location.reload();
+  };
+
+  const handleCreateApp = async () => {
+    if (!newAppName.trim()) {
+      toast.error("Please enter an application name");
+      return;
+    }
+
+    try {
+      setCreatingApp(true);
+      const result = await adminApi.createApp(newAppName);
+      localStorage.setItem("selectedAppId", result.id);
+      setNewAppName("");
+      setShowCreateApp(false);
+      toast.success("Application created successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to create app:", error);
+      toast.error(error.message || "Failed to create application");
+    } finally {
+      setCreatingApp(false);
+    }
+  };
+
+  const selectedApp = apps.find((a) => a.id === selectedAppId);
 
   const handleLogout = async () => {
     await logout();
@@ -68,8 +148,8 @@ export default function DashboardLayout({ children }) {
       >
         {/* Subtle Background Mesh */}
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/[0.03] blur-[120px]" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[35%] h-[35%] rounded-full bg-violet-500/[0.03] blur-[120px]" />
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/3 blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[35%] h-[35%] rounded-full bg-violet-500/3 blur-[120px]" />
         </div>
 
         {/* Mobile Header */}
@@ -90,6 +170,11 @@ export default function DashboardLayout({ children }) {
                 isDark={isDark}
                 toggleTheme={toggleTheme}
                 handleLogout={handleLogout}
+                apps={apps}
+                selectedApp={selectedApp}
+                selectedAppId={selectedAppId}
+                handleAppChange={handleAppChange}
+                setShowCreateApp={setShowCreateApp}
               />
             </SheetContent>
           </Sheet>
@@ -126,31 +211,80 @@ export default function DashboardLayout({ children }) {
               sidebarCollapsed ? "w-[72px]" : "w-[260px]",
             )}
           >
-            {/* Logo */}
             <div
               className={cn(
                 "flex h-16 items-center border-b border-border/50",
                 sidebarCollapsed ? "justify-center px-2" : "gap-3 px-5",
               )}
             >
-              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/20 to-violet-500/20 border border-primary/10">
-                <Sparkles className="h-4.5 w-4.5 text-primary" />
-              </div>
-              {!sidebarCollapsed && (
-                <div className="flex flex-col">
-                  <span className="font-bold text-lg tracking-tight">
-                    Authrix
-                  </span>
-                  <span className="text-[10px] text-muted-foreground -mt-0.5">
-                    Dashboard
-                  </span>
-                </div>
-              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full p-0 flex items-center hover:bg-transparent",
+                      sidebarCollapsed ? "justify-center" : "gap-3",
+                    )}
+                  >
+                    <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/20 to-violet-500/20 border border-primary/10 transition-transform active:scale-95 group-hover:scale-105">
+                      <Sparkles className="h-4.5 w-4.5 text-primary" />
+                    </div>
+                    {!sidebarCollapsed && (
+                      <div className="flex flex-col items-start min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 w-full">
+                          <span className="font-bold text-sm truncate">
+                            {selectedApp?.name || "Select App"}
+                          </span>
+                          <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        </div>
+                        <span className="text-[10px] text-muted-foreground truncate">
+                          {selectedApp
+                            ? "Switch Application"
+                            : "Authrix Dashboard"}
+                        </span>
+                      </div>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64" align="start">
+                  <DropdownMenuLabel>Your Applications</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {apps.map((app) => (
+                      <DropdownMenuItem
+                        key={app.id}
+                        className={cn(
+                          "flex flex-col items-start gap-1 py-3 px-4",
+                          selectedAppId === app.id &&
+                            "bg-primary/10 text-primary",
+                        )}
+                        onClick={() => handleAppChange(app.id)}
+                      >
+                        <span className="font-semibold text-sm">
+                          {app.name}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground opacity-70 truncate w-full">
+                          ID: {app.id}
+                        </span>
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="py-3 items-center justify-center text-primary font-medium gap-2"
+                    onClick={() => setShowCreateApp(true)}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create New App
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {!sidebarCollapsed && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="ml-auto h-7 w-7 text-muted-foreground hover:text-foreground"
+                  className="ml-auto h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
                   onClick={() => setSidebarCollapsed(true)}
                 >
                   <ChevronRight className="h-4 w-4 rotate-180" />
@@ -336,12 +470,58 @@ export default function DashboardLayout({ children }) {
             <div className="p-6">{children}</div>
           </main>
         </div>
+        <ChatBox />
       </div>
+      {/* Global Create App Dialog */}
+      <Dialog open={showCreateApp} onOpenChange={setShowCreateApp}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Application</DialogTitle>
+            <DialogDescription>
+              Enter a name for your new application.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="new-app-name">Application Name</Label>
+              <Input
+                id="new-app-name"
+                value={newAppName}
+                onChange={(e) => setNewAppName(e.target.value)}
+                placeholder="My Awesome App"
+                disabled={creatingApp}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateApp(false)}
+              disabled={creatingApp}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleCreateApp} disabled={creatingApp}>
+              {creatingApp ? "Creating..." : "Create Application"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
   );
 }
 
-function MobileSidebar({ user, isDark, toggleTheme, handleLogout }) {
+function MobileSidebar({
+  user,
+  isDark,
+  toggleTheme,
+  handleLogout,
+  apps,
+  selectedApp,
+  selectedAppId,
+  handleAppChange,
+  setShowCreateApp,
+}) {
   const location = useLocation();
 
   return (
@@ -351,6 +531,59 @@ function MobileSidebar({ user, isDark, toggleTheme, handleLogout }) {
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
         <span className="font-bold text-lg">Authrix</span>
+      </div>
+
+      <div className="px-3 pt-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-between h-12 bg-card/50 border-border/50 px-3"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                  <Sparkles className="h-3.5 w-3.5" />
+                </div>
+                <span className="font-semibold text-sm truncate">
+                  {selectedApp?.name || "Select Application"}
+                </span>
+              </div>
+              <ChevronsUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-[calc(100vw-48px)] mx-3"
+            align="start"
+          >
+            <DropdownMenuLabel>Your Applications</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="max-h-[300px] overflow-y-auto">
+              {apps.map((app) => (
+                <DropdownMenuItem
+                  key={app.id}
+                  className={cn(
+                    "flex flex-col items-start gap-1 py-3 px-4",
+                    selectedAppId === app.id && "bg-primary/10 text-primary",
+                  )}
+                  onClick={() => handleAppChange(app.id)}
+                >
+                  <span className="font-semibold text-sm">{app.name}</span>
+                  <span className="text-[10px] text-muted-foreground opacity-70 truncate w-full">
+                    ID: {app.id}
+                  </span>
+                </DropdownMenuItem>
+              ))}
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="py-3 items-center justify-center text-primary font-medium gap-2"
+              onClick={() => setShowCreateApp(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Create New App
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {navigation.map((item) => {

@@ -61,8 +61,13 @@ export default function Overview() {
   const [appName, setAppName] = useState("");
   const [copied, setCopied] = useState(null);
   const [showSecret, setShowSecret] = useState(false);
-  const [error, setError] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
+  const [error, setError] = useState("");
+  const [appsData, setAppsData] = useState({
+    plan: "FREE",
+    totalUsers: 0,
+    userLimits: {},
+  });
 
   useEffect(() => {
     if (user) {
@@ -73,15 +78,26 @@ export default function Overview() {
   const loadUserApp = async () => {
     try {
       setLoading(true);
-      const result = await adminApi.getMyApp();
-      setApp(result.app);
+      const result = await adminApi.getMyApps();
+      const userApps = result.apps || [];
+      setAppsData({
+        plan: result.plan,
+        totalUsers: result.totalUsers,
+        userLimits: result.userLimits,
+      });
 
-      if (result.app?.id) {
-        const usersData = await adminApi.getAppUsers(result.app.id);
+      const selectedId = localStorage.getItem("selectedAppId");
+      const currentApp =
+        userApps.find((a) => a.id === selectedId) || userApps[0];
+
+      setApp(currentApp);
+
+      if (currentApp?.id) {
+        const usersData = await adminApi.getAppUsers(currentApp.id);
         setUsers(usersData || []);
       }
     } catch (error) {
-      console.error("Failed to load app:", error);
+      console.error("Failed to load apps:", error);
       setError("Failed to load application data");
     } finally {
       setLoading(false);
@@ -95,10 +111,11 @@ export default function Overview() {
     }
 
     try {
-      const newApp = await adminApi.createApp(appName);
-      setApp(newApp);
-      setShowCreateApp(false);
-      setAppName("");
+      const result = await adminApi.createApp(appName);
+      // The backend now returns { apiKey, secretKey, appId, name, ... }
+      // The adminApi.createApp transforms it.
+      localStorage.setItem("selectedAppId", result.id);
+      window.location.reload();
       toast.success("Application created successfully!");
     } catch (error) {
       console.error("Failed to create app:", error);
@@ -262,15 +279,143 @@ export default function Overview() {
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Welcome back{user?.username ? `, ${user.username}` : ""}
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Here's an overview of{" "}
-          <span className="font-medium text-foreground">{app.name}</span>
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Welcome back{user?.username ? `, ${user.username}` : ""}
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Here's an overview of{" "}
+            <span className="font-medium text-foreground">{app.name}</span>
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Dialog open={showCreateApp} onOpenChange={setShowCreateApp}>
+            <DialogTrigger asChild>
+              <Button className="gap-2 shadow-lg shadow-primary/20">
+                <Plus className="h-4 w-4" />
+                New Application
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Application</DialogTitle>
+                <DialogDescription>
+                  Enter a name for your new application.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Application Name</Label>
+                  <Input
+                    id="name"
+                    value={appName}
+                    onChange={(e) => setAppName(e.target.value)}
+                    placeholder="My Awesome App"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCreateApp(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateApp}>Create</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
+      {/* Usage Bar */}
+      {appsData.plan && (
+        <Card className="border-primary/20 bg-linear-to-br from-primary/5 via-transparent to-transparent backdrop-blur-sm overflow-hidden relative group hover:border-primary/40 transition-colors duration-500">
+          <div className="absolute top-0 right-0 p-4">
+            <div className="flex items-center gap-2">
+              <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+                {appsData.plan} PLAN
+              </Badge>
+            </div>
+          </div>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+              Developer Footprint
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Total users across all your applications
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold">
+                    {appsData.totalUsers.toLocaleString()}
+                    <span className="text-sm text-muted-foreground font-normal ml-2">
+                      /{" "}
+                      {appsData.userLimits[appsData.plan] === Infinity
+                        ? "Unlimited"
+                        : appsData.userLimits[appsData.plan]?.toLocaleString() +
+                          " limit"}
+                    </span>
+                  </span>
+                </div>
+                <div className="text-right flex flex-col items-end">
+                  <span
+                    className={cn(
+                      "text-sm font-bold",
+                      appsData.totalUsers /
+                        (appsData.userLimits[appsData.plan] || 1) >
+                        0.9
+                        ? "text-rose-500"
+                        : "text-primary",
+                    )}
+                  >
+                    {appsData.userLimits[appsData.plan] === Infinity
+                      ? "0"
+                      : Math.round(
+                          (appsData.totalUsers /
+                            appsData.userLimits[appsData.plan]) *
+                            100,
+                        )}
+                    %
+                  </span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                    Utilized
+                  </span>
+                </div>
+              </div>
+              <div className="relative h-2.5 w-full bg-muted/30 rounded-full overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full transition-all duration-1000 ease-out rounded-full",
+                    appsData.totalUsers /
+                      (appsData.userLimits[appsData.plan] || 1) >
+                      0.9
+                      ? "bg-rose-500"
+                      : "bg-primary",
+                  )}
+                  style={{
+                    width: `${
+                      appsData.userLimits[appsData.plan] === Infinity
+                        ? 2
+                        : Math.min(
+                            100,
+                            (appsData.totalUsers /
+                              appsData.userLimits[appsData.plan]) *
+                              100,
+                          )
+                    }%`,
+                  }}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
