@@ -104,7 +104,7 @@ model Message {
   senderType     SenderType
   senderId       String?    // Nullable for AI
   createdAt      DateTime   @default(now())
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }
 
 enum StaffRole {

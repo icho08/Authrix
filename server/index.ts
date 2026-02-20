@@ -8,6 +8,8 @@ import admin from "./routes/admin/app.js";
 import userAdminRoutes from "./routes/admin/user.js";
 import auth from "./routes/auth/user.js";
 import payment from "./routes/paymentRoutes.js";
+import chat from "./routes/admin/chat.js";
+import staff from "./routes/admin/staff.js";
 import { generalLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestId } from "./middleware/requestId.js";
@@ -32,6 +34,8 @@ app.use('/api/admin/', admin);
 app.use('/api/admin/users', userAdminRoutes);
 app.use('/api/auth/', auth); 
 app.use('/api/payment/', payment);
+app.use('/api/chat/', chat);
+app.use('/api/staff/', staff);
 
 app.use(errorHandler);
 

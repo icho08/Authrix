@@ -22,6 +22,10 @@ export const signAccessToken = async (payload: JWTPayload): Promise<string> => {
   return jwt.sign(payload, app.secretKey, { expiresIn: '15m' });
 };
 
+export const signStaffToken = async (payload: { userId: string, role: string }): Promise<string> => {
+  return jwt.sign(payload, process.env.JWT_SECRET || 'authrix-internal-secret', { expiresIn: '1d' });
+};
+
 export const signRefreshToken = async (userId: string, applicationId: string, userAgent?: string, ipAddress?: string): Promise<string> => {
   const refreshToken = crypto.randomBytes(64).toString('hex');
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -76,6 +80,15 @@ export const verifyAccessToken = async (token: string, applicationId: string): P
   }
 };
 
+export const verifyStaffToken = async (token: string): Promise<{ userId: string, role: string } | null> => {
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET || 'authrix-internal-secret') as { userId: string, role: string };
+    return payload;
+  } catch {
+    return null;
+  }
+};
+
 export const verifyRefreshToken = async (refreshToken: string, applicationId: string): Promise<JWTPayload | null> => {
   try {
     const session = await prisma.session.findFirst({
@@ -119,7 +132,7 @@ export const refreshTokenRotation = async (oldRefreshToken: string): Promise<str
   const newRefreshToken = crypto.randomBytes(64).toString('hex');
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   
-  await prisma.session.update({
+  const result = await prisma.session.updateMany({
     where: { refreshToken: oldRefreshToken },
     data: { 
       refreshToken: newRefreshToken,
@@ -127,6 +140,10 @@ export const refreshTokenRotation = async (oldRefreshToken: string): Promise<str
       lastUsedAt: new Date()
     }
   });
+
+  if (result.count === 0) {
+    throw new Error('Session not found for token rotation');
+  }
   
   return newRefreshToken;
 };
