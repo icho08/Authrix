@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,6 +54,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import toast from "react-hot-toast";
 
 export default function Overview() {
+  const navigate = useNavigate();
   const { user, baseUrl } = useAuth();
   const [app, setApp] = useState(null);
   const [users, setUsers] = useState([]);
@@ -332,13 +334,6 @@ export default function Overview() {
       {/* Usage Bar */}
       {appsData.plan && (
         <Card className="border-primary/20 bg-linear-to-br from-primary/5 via-transparent to-transparent backdrop-blur-sm overflow-hidden relative group hover:border-primary/40 transition-colors duration-500">
-          <div className="absolute top-0 right-0 p-4">
-            <div className="flex items-center gap-2">
-              <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
-                {appsData.plan} PLAN
-              </Badge>
-            </div>
-          </div>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-bold flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary animate-pulse" />
@@ -356,7 +351,8 @@ export default function Overview() {
                     {appsData.totalUsers.toLocaleString()}
                     <span className="text-sm text-muted-foreground font-normal ml-2">
                       /{" "}
-                      {appsData.userLimits[appsData.plan] === Infinity
+                      {appsData.userLimits[appsData.plan] === Infinity ||
+                      appsData.userLimits[appsData.plan] === null
                         ? "Unlimited"
                         : appsData.userLimits[appsData.plan]?.toLocaleString() +
                           " limit"}
@@ -374,7 +370,8 @@ export default function Overview() {
                         : "text-primary",
                     )}
                   >
-                    {appsData.userLimits[appsData.plan] === Infinity
+                    {appsData.userLimits[appsData.plan] === Infinity ||
+                    appsData.userLimits[appsData.plan] === null
                       ? "0"
                       : Math.round(
                           (appsData.totalUsers /
@@ -400,7 +397,8 @@ export default function Overview() {
                   )}
                   style={{
                     width: `${
-                      appsData.userLimits[appsData.plan] === Infinity
+                      appsData.userLimits[appsData.plan] === Infinity ||
+                      appsData.userLimits[appsData.plan] === null
                         ? 2
                         : Math.min(
                             100,
@@ -657,16 +655,26 @@ export default function Overview() {
       </div>
 
       {/* Coming Soon Section */}
-      <div className="space-y-4 sm:hidden hidden">
-        <div className="flex items-center gap-3">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-semibold text-foreground">
               Coming Soon
             </h2>
           </div>
-          <Separator className="flex-1 opacity-50" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/pricing")}
+            className="text-xs group h-8 gap-2 hover:bg-primary/10 hover:text-primary"
+          >
+            <Zap className="h-3.5 w-3.5 group-hover:animate-pulse" />
+            Upgrade to Unlock All Features
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Button>
         </div>
+        <Separator className="opacity-50" />
         <div className="grid gap-4 md:grid-cols-2">
           <Card className="border-border/30 bg-card/30 backdrop-blur-sm opacity-70 hover:opacity-90 transition-opacity duration-300">
             <CardHeader className="pb-3">

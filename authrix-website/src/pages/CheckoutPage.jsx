@@ -3,7 +3,16 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../pages/Pricing"; // Reusing Footer component exported from Pricing
 import PaymentForm from "../components/PaymentForm";
-import { ChevronLeft, ShoppingBag, Sparkles } from "lucide-react";
+import { ChevronLeft, ShoppingBag, Sparkles, AlertCircle } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Pricing data to match Pricing.jsx
 const plans = {
@@ -18,6 +27,7 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const planName = searchParams.get("plan") || "Starter";
   const plan = plans[planName] || plans.Starter;
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   const handleBack = () => navigate("/pricing");
 
@@ -159,10 +169,39 @@ export default function CheckoutPage() {
             <PaymentForm
               plan={planName}
               amount={plan.amount}
-              onPay={handlePay}
+              onPay={() => setShowVerificationModal(true)}
             />
           </div>
         </div>
+
+        <AlertDialog
+          open={showVerificationModal}
+          onOpenChange={setShowVerificationModal}
+        >
+          <AlertDialogContent className="max-w-[400px] border-primary/20">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2 text-xl">
+                <AlertCircle className="w-6 h-6 text-amber-500" />
+                Under Verification
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-base pt-2">
+                The Authrix team is currently{" "}
+                <span className="text-foreground font-bold italic">
+                  awaiting merchant verification
+                </span>{" "}
+                from eSewa.
+                <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm border border-border">
+                  Please try again later. We'll be fully live soon!
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction className="w-full sm:w-full bg-primary hover:bg-primary/90 font-bold">
+                Got it, thanks!
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
 
       {/* Basic Footer for Checkout */}

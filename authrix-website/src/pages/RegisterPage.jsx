@@ -89,6 +89,7 @@ export default function RegisterPage() {
                 : err.error.message || "Registration failed";
           }
         } else if (message.includes("HTTP 400")) {
+          ca;
           errorMessage = "Please check your input and try again";
         } else if (message.includes("HTTP 409")) {
           errorMessage = "Email already exists. Please use a different email";

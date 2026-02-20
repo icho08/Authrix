@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -46,6 +47,7 @@ import { adminApi } from "../../utils/adminApi";
 import DomainManagement from "../../components/DomainManagement";
 
 export default function Settings() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [app, setApp] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -214,14 +216,28 @@ export default function Settings() {
         <CardContent className="pt-6 space-y-6">
           <div className="space-y-2">
             <Label htmlFor="appName">Application Name</Label>
-            <Input
-              id="appName"
-              value={settings.appName}
-              onChange={(e) =>
-                setSettings((prev) => ({ ...prev, appName: e.target.value }))
-              }
-              className="max-w-md border-border/50 bg-muted/30"
-            />
+            <div className="flex gap-2 max-w-md">
+              <Input
+                id="appName"
+                value={settings.appName}
+                onChange={(e) =>
+                  setSettings((prev) => ({ ...prev, appName: e.target.value }))
+                }
+                className="border-border/50 bg-muted/30"
+              />
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="shrink-0"
+              >
+                {saving ? (
+                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
+                Save Changes
+              </Button>
+            </div>
           </div>
 
           <Separator className="opacity-50" />
@@ -405,28 +421,42 @@ export default function Settings() {
       <DomainManagement app={app} onUpdate={setApp} />
 
       {/* Coming Soon Features */}
-      {/* <Card className="border-border/30 bg-card/30 backdrop-blur-sm">
+      <Card className="border-border/30 bg-card/30 backdrop-blur-sm">
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 ring-1 ring-violet-500/20">
-              <Sparkles className="h-5 w-5 text-violet-500 dark:text-violet-400" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <CardTitle>Upcoming Features</CardTitle>
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                  Soon
-                </Badge>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 ring-1 ring-violet-500/20">
+                <Sparkles className="h-5 w-5 text-violet-500 dark:text-violet-400" />
               </div>
-              <CardDescription>
-                These features are being worked on and will be available soon
-              </CardDescription>
+              <div>
+                <div className="flex items-center gap-2">
+                  <CardTitle>Upcoming Features</CardTitle>
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] px-1.5 py-0"
+                  >
+                    Soon
+                  </Badge>
+                </div>
+                <CardDescription>
+                  These features are being worked on and will be available soon
+                </CardDescription>
+              </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/pricing")}
+              className="gap-2 border-primary/20 hover:bg-primary/10 hover:text-primary transition-all duration-300"
+            >
+              <Zap className="h-4 w-4" />
+              Upgrade Now
+            </Button>
           </div>
         </CardHeader>
         <Separator className="opacity-30" />
         <CardContent className="pt-6 space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/20 border border-border/20 opacity-60">
+          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/20 border border-border/20">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
@@ -444,11 +474,7 @@ export default function Settings() {
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/20 border border-border/20 opacity-60">
-            <Switch checked={true} disabled />
-          </div>
-
-          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/20 border border-border/20 opacity-60">
+          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/20 border border-border/20">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-muted-foreground" />
@@ -462,11 +488,11 @@ export default function Settings() {
               variant="outline"
               className="text-xs border-border/30 text-muted-foreground"
             >
-              Off
+              Premium Feature
             </Badge>
           </div>
         </CardContent>
-      </Card> */}
+      </Card>
 
       {/* Danger Zone */}
       <Card className="border-destructive/30 bg-destructive/[0.02]">

@@ -369,8 +369,12 @@ export default function DashboardLayout({ children }) {
                     <p className="text-xs text-muted-foreground mb-3">
                       Get unlimited users and advanced analytics.
                     </p>
-                    <Button size="sm" className="w-full" disabled>
-                      Coming Soon
+                    <Button
+                      size="sm"
+                      className="w-full"
+                      onClick={() => navigate("/pricing")}
+                    >
+                      Upgrade Now
                     </Button>
                   </div>
                 </div>
